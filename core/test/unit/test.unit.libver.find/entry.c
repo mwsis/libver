@@ -73,9 +73,9 @@
  * forward declarations
  */
 
-static void test_init_uninit(void);
-static void test_find_stub_returns_no_schemes(void);
-static void test_find_null_result(void);
+static void TEST_libver_init_AND_libver_uninit(void);
+static void TEST_libver_find_STUB_RETURNS_NO_SCHEMES(void);
+static void TEST_libver_find_NULL_result(void);
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -91,9 +91,9 @@ int main(int argc, char** argv)
 
     if (XTESTS_START_RUNNER("test.unit.libver.find", verbosity))
     {
-        XTESTS_RUN_CASE(test_init_uninit);
-        XTESTS_RUN_CASE(test_find_stub_returns_no_schemes);
-        XTESTS_RUN_CASE(test_find_null_result);
+        XTESTS_RUN_CASE(TEST_libver_init_AND_libver_uninit);
+        XTESTS_RUN_CASE(TEST_libver_find_STUB_RETURNS_NO_SCHEMES);
+        XTESTS_RUN_CASE(TEST_libver_find_NULL_result);
 
         XTESTS_PRINT_RESULTS();
 
@@ -108,14 +108,14 @@ int main(int argc, char** argv)
  * test implementations
  */
 
-static void test_init_uninit(void)
+static void TEST_libver_init_AND_libver_uninit(void)
 {
     XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
 
     libver_uninit();
 }
 
-static void test_find_stub_returns_no_schemes(void)
+static void TEST_libver_find_STUB_RETURNS_NO_SCHEMES(void)
 {
     libver_result_t result;
     int             r;
@@ -139,7 +139,7 @@ static void test_find_stub_returns_no_schemes(void)
     libver_uninit();
 }
 
-static void test_find_null_result(void)
+static void TEST_libver_find_NULL_result(void)
 {
     int r;
 

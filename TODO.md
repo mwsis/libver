@@ -15,14 +15,16 @@
 * [ ] Core C-API (`libver_find` / result model);
 * [ ] Cargo backend (**Cargo.toml**);
 * [ ] Zig backend (**build.zig.zon**);
-* [ ] Shared **libver** CLI;
-* [ ] **cargo-libver** frontend;
+* [x] ~~~CLI stubs **libver** / **cargo-libver** (**CLASP** + **sistools-common-c**)~~~ - ✅;
+* [ ] Shared **libver** CLI (real discovery behaviour);
+* [ ] **cargo-libver** frontend (real discovery behaviour);
+* [ ] Wire **Pantheios** logging; adopt **libCLImate** later;
 * [ ] Python / Ruby / C++ backends;
 
 
 ## Nonfunctional improvements
 
-T.B.C.
+* [ ] Articulate and apply the **“always be abstracting”** principle (details T.B.C.);
 
 
 ## Packaging improvements
@@ -40,6 +42,8 @@ T.B.C.
 * [ ] Manually propagate local C/C++ block-header casing rule (**.cursor/rules/local-c-cpp-block-headers.mdc**) into the upstream freelibs/SISTrS rulesbase (prefer shared **c-cpp-standards.mdc**), then drop or thin the local elaboration after sync;
 * [ ] Manually propagate local C/C++ type-bound declarator rule for `*` / `&` / `&&` (**.cursor/rules/local-c-cpp-local-declarators.mdc**) into the upstream freelibs/SISTrS rulesbase (prefer shared **c-cpp-standards.mdc**), then drop or thin the local elaboration after sync;
 * [ ] Manually propagate local west-`const` pointer rule (**.cursor/rules/local-c-cpp-west-const.mdc**) into the upstream freelibs/SISTrS rulesbase (prefer shared **c-cpp-standards.mdc**), then drop or thin the local elaboration after sync;
+* [ ] Manually propagate local unit-test function naming rule (**.cursor/rules/local-c-cpp-test-function-names.mdc**: `TEST_` prefix; SHOUTING parts except construct names / language identifiers) into the upstream freelibs/SISTrS rulesbase (prefer shared **test-standards.mdc**), then drop or thin the local elaboration after sync;
+* [ ] Capture **“always be abstracting”** as a local (then upstream) rule once the principle is explained;
 
 
 <!-- ########################### end of file ########################### -->

@@ -25,8 +25,8 @@ Status: planning checklist derived from the initial design conversations.
 
 * [x] Root + nested **CMakeLists.txt** with options `BUILD_CLI`, `BUILD_FRONTENDS`, `BUILD_TESTING`;
 * [x] Buildable static **libver** with stub `libver_find`;
-* [x] Wire unit/component test targets (smoke first) — **test.unit.libver.find** via **CTest**;
-* [ ] Wire **cli/libver** and **frontends/cargo-libver** `add_subdirectory` when those targets exist;
+* [x] **1.1** Wire unit/component test targets (smoke first) — **test.unit.libver.find** via **CTest**;
+* [x] **1.2** Wire **cli/libver** and **frontends/cargo-libver** stubs (**CLASP** + **sistools-common-c**; **cstring** / **collect-c** linked; **Diagnosticism** always; **Pantheios** locate-only; **libCLImate** later);
 
 
 ## Phase 2 — First backends

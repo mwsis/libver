@@ -81,7 +81,9 @@ endif(MSVC)
 
 include(BuildType)
 include(LanguageFullVersion)
+include(LibverFindPackage)
 include(TargetMacros)
+include(GNUInstallDirs)
 
 
 # ##########################################################
@@ -90,83 +92,161 @@ include(TargetMacros)
 option(BUILD_CLI "Build the shared libver CLI" ON)
 option(BUILD_FRONTENDS "Build ecosystem frontends (e.g. cargo-libver)" ON)
 option(BUILD_TESTING "Build tests" ON)
+option(LIBVER_WITH_PANTHEIOS "Locate Pantheios (wired for later; not linked yet)" OFF)
 
-message(STATUS "libver options: BUILD_CLI=${BUILD_CLI} BUILD_FRONTENDS=${BUILD_FRONTENDS} BUILD_TESTING=${BUILD_TESTING}")
+message(STATUS "libver options: BUILD_CLI=${BUILD_CLI} BUILD_FRONTENDS=${BUILD_FRONTENDS} BUILD_TESTING=${BUILD_TESTING} LIBVER_WITH_PANTHEIOS=${LIBVER_WITH_PANTHEIOS}")
+
+set(LIBVER_NEED_CLI_DEPS OFF)
+if(BUILD_CLI OR BUILD_FRONTENDS)
+
+	set(LIBVER_NEED_CLI_DEPS ON)
+endif()
 
 
 # ##########################################################
 # dependencies
 #
-# required (when BUILD_TESTING):
-# - Diagnosticism - scratch tests (version-string formatting);
-# - STLSoft - required for xTests-based unit tests;
-# - xTests - required for unit tests;
+# always:
+# - Diagnosticism;
+# - STLSoft (CLASP / sistools-common-c / xTests);
+#
+# when BUILD_CLI or BUILD_FRONTENDS:
+# - CLASP;
+# - cstring;
+# - collect-c;
+# - sistools-common-c;
+#
+# optional (CMake wiring only for now):
+# - Pantheios;
+#
+# when BUILD_TESTING:
+# - xTests;
 
 
 # ######################################
-# Diagnosticism (required for scratch tests; version-string formatting)
+# prefix hints (install prefixes or build trees)
 
-if(BUILD_TESTING)
-
-	# Optional install/prefix hints (Synesis convention):
-	# 1. CMake variable DIAGNOSTICISM; otherwise
-	# 2. environment variable DIAGNOSTICISM; otherwise
-	# 3. default find_package() search paths
-
-	if(DEFINED DIAGNOSTICISM)
-
-		message("-- DIAGNOSTICISM provided as CMake variable with value '${DIAGNOSTICISM}'")
-
-		list(PREPEND CMAKE_PREFIX_PATH "${DIAGNOSTICISM}")
-		set(diagnosticism_ROOT "${DIAGNOSTICISM}")
-	elseif(DEFINED ENV{DIAGNOSTICISM})
-
-		message("-- DIAGNOSTICISM provided as environment variable with value '$ENV{DIAGNOSTICISM}'")
-
-		list(PREPEND CMAKE_PREFIX_PATH "$ENV{DIAGNOSTICISM}")
-		set(diagnosticism_ROOT "$ENV{DIAGNOSTICISM}")
-	endif()
-
-	# Diagnosticism >= 0.3.1 exports Diagnosticism::core with no transitive
-	# package dependencies (STLSoft is test-only for Diagnosticism itself).
-	find_package(diagnosticism REQUIRED)
-
-	message("-- CMake package diagnosticism found (version ${diagnosticism_VERSION})")
-endif(BUILD_TESTING)
+libver_prepend_prefix_path_if_set(DIAGNOSTICISM)
+libver_prepend_prefix_path_if_set(SISTOOLS_COMMON_C)
+libver_prepend_prefix_path_if_set(COLLECT_C)
+libver_prepend_prefix_path_if_set(PANTHEIOS)
 
 
 # ######################################
 # STLSoft
 
-if(BUILD_TESTING)
+if(DEFINED STLSOFT)
 
-	if(DEFINED STLSOFT)
+	message("-- STLSOFT provided as CMake variable with value '${STLSOFT}'")
 
-		message("-- STLSOFT provided as CMake variable with value '${STLSOFT}'")
+	set(STLSOFT_INCLUDE_DIR ${STLSOFT}/include)
+elseif(DEFINED ENV{STLSOFT})
 
-		set(STLSOFT_INCLUDE_DIR ${STLSOFT}/include)
-	elseif(DEFINED ENV{STLSOFT})
+	message("-- STLSOFT provided as environment variable with value '$ENV{STLSOFT}'")
 
-		message("-- STLSOFT provided as environment variable with value '$ENV{STLSOFT}'")
+	set(STLSOFT_INCLUDE_DIR $ENV{STLSOFT}/include)
+else()
 
-		set(STLSOFT_INCLUDE_DIR $ENV{STLSOFT}/include)
+	set(STLSoft_REQUIRED_VERSION_ 1.11)
+
+	find_package(STLSoft ${STLSoft_REQUIRED_VERSION_} REQUIRED)
+
+	message("-- CMake package STLSoft found (version ${STLSoft_VERSION}; ${STLSoft_REQUIRED_VERSION_} requested)")
+endif()
+
+if(DEFINED STLSOFT_INCLUDE_DIR OR DEFINED STLSoft_FOUND)
+
+	include_directories(${STLSOFT_INCLUDE_DIR})
+
+	add_compile_definitions(HAS_STLSOFT)
+	add_compile_definitions(HAS_STLSoft)
+endif()
+
+
+# ######################################
+# Diagnosticism
+
+set(DIAGNOSTICISM_REQUIRED_VERSION_ 0.3)
+
+find_package(Diagnosticism ${DIAGNOSTICISM_REQUIRED_VERSION_} REQUIRED)
+
+message("-- CMake package Diagnosticism found (version ${Diagnosticism_VERSION}; ${DIAGNOSTICISM_REQUIRED_VERSION_} requested)")
+
+
+# ######################################
+# CLI stack
+
+if(LIBVER_NEED_CLI_DEPS)
+
+	# ######################################
+	# CLASP
+
+	set(CLASP_REQUIRED_VERSION_ 0.15)
+
+	find_package(CLASP ${CLASP_REQUIRED_VERSION_} REQUIRED)
+
+	message("-- CMake package CLASP found (version ${CLASP_VERSION}; ${CLASP_REQUIRED_VERSION_} requested)")
+
+
+	# ######################################
+	# collect-c
+
+	set(collect_c_REQUIRED_VERSION_ 0.1)
+
+	find_package(collect-c ${collect_c_REQUIRED_VERSION_} REQUIRED)
+
+	message("-- CMake package collect-c found (version ${collect_c_VERSION}; ${collect_c_REQUIRED_VERSION_} requested)")
+
+
+	# ######################################
+	# cstring
+
+	set(cstring_REQUIRED_VERSION_ 4)
+
+	find_package(cstring ${cstring_REQUIRED_VERSION_} REQUIRED)
+
+	message("-- CMake package cstring found (version ${cstring_VERSION}; ${cstring_REQUIRED_VERSION_} requested)")
+
+
+	# ######################################
+	# sistools-common-c
+
+	set(sistools_common_c_REQUIRED_VERSION_ 0.1)
+
+	find_package(sistools-common-c ${sistools_common_c_REQUIRED_VERSION_} REQUIRED)
+
+	message("-- CMake package sistools-common-c found (version ${sistools_common_c_VERSION}; ${sistools_common_c_REQUIRED_VERSION_} requested)")
+endif(LIBVER_NEED_CLI_DEPS)
+
+
+# ######################################
+# Pantheios
+
+if(LIBVER_WITH_PANTHEIOS)
+
+	libver_find_config_package(Pantheios 1.0 TRUE
+		HINTS
+			"$ENV{HOME}/dev/synesissoftware/forks/freelibs/Pantheios/Pantheios/_build"
+			"$ENV{HOME}/dev/synesissoftware/forks/freelibs/Pantheios/Pantheios"
+	)
+	set(LIBVER_HAS_PANTHEIOS TRUE)
+else()
+
+	libver_find_config_package(Pantheios 1.0 FALSE
+		HINTS
+			"$ENV{HOME}/dev/synesissoftware/forks/freelibs/Pantheios/Pantheios/_build"
+			"$ENV{HOME}/dev/synesissoftware/forks/freelibs/Pantheios/Pantheios"
+	)
+	if(Pantheios_FOUND)
+
+		set(LIBVER_HAS_PANTHEIOS TRUE)
 	else()
 
-		set(STLSoft_REQUIRED_VERSION_ 1.11)
-
-		find_package(STLSoft ${STLSoft_REQUIRED_VERSION_} REQUIRED)
-
-		message("-- CMake package STLSoft found (version ${STLSoft_VERSION}; ${STLSoft_REQUIRED_VERSION_} requested)")
+		set(LIBVER_HAS_PANTHEIOS FALSE)
 	endif()
+endif()
 
-	if(DEFINED STLSOFT_INCLUDE_DIR OR DEFINED STLSoft_FOUND)
-
-		include_directories(${STLSOFT_INCLUDE_DIR})
-
-		add_compile_definitions(HAS_STLSOFT)
-		add_compile_definitions(HAS_STLSoft)
-	endif()
-endif(BUILD_TESTING)
+message(STATUS "libver Pantheios: LIBVER_HAS_PANTHEIOS=${LIBVER_HAS_PANTHEIOS} (not linked yet; libCLImate later)")
 
 
 # ######################################
@@ -179,13 +259,6 @@ if(BUILD_TESTING)
 	find_package(xTests ${xTests_REQUIRED_VERSION_} REQUIRED)
 
 	message("-- CMake package xTests found (version ${xTests_VERSION}; ${xTests_REQUIRED_VERSION_} requested)")
-endif(BUILD_TESTING)
-
-
-# ##########################################################
-# includes - 2
-
-if(BUILD_TESTING)
 
 	include(CTest)
 endif(BUILD_TESTING)
@@ -196,15 +269,15 @@ endif(BUILD_TESTING)
 
 add_subdirectory(core)
 
-# CLI and frontend directories are scaffolded; wire add_subdirectory when ready.
 if(BUILD_CLI)
 
-	# add_subdirectory(cli/libver)
+	add_subdirectory(cli/libver)
 endif()
 
 if(BUILD_FRONTENDS)
 
-	# add_subdirectory(frontends/cargo-libver)
+	add_subdirectory(frontends/cargo-libver)
 endif()
+
 
 # ############################## end of file ############################# #

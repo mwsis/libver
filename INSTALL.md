@@ -36,6 +36,30 @@ Useful optional flags for **prepare_cmake.sh**:
 Execute `$ ./prepare_cmake.sh --help` for the full set of options.
 
 
+### Dependencies
+
+Always:
+
+* **STLSoft**, **Diagnosticism**
+
+When building CLIs / frontends (`BUILD_CLI` / `BUILD_FRONTENDS`):
+
+* **CLASP**, **cstring**, **collect-c**, **sistools-common-c**
+
+Hint local build trees / install prefixes via **CMAKE_PREFIX_PATH** or:
+
+* `SISTOOLS_COMMON_C` — e.g. `$HOME/dev/sistools/sistools-common-c/_build`
+* `COLLECT_C` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/collect/collect-c/_build`
+* `PANTHEIOS` — for later logging; enable required locate with `-DLIBVER_WITH_PANTHEIOS=ON`
+
+After build, stub CLIs:
+
+```bash
+$ ./_build/cli/libver/libver --help
+$ ./_build/frontends/cargo-libver/cargo-libver --version
+```
+
+
 ## Running tests
 
 Configure and build (default build dir **_build/**):

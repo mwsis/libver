@@ -62,6 +62,16 @@ libver/
 * A Cargo workspace is added only after a second Rust crate appears;
 
 
+## CLI dependencies (v0)
+
+* **CLASP** — command-line parsing (now);
+* **sistools-common-c** — shared help/version helpers (`stcc_show_*`);
+* **Diagnosticism** — version formatting (always; not test-only);
+* **cstring**, **collect-c** — linked into CLI stubs for upcoming use;
+* **Pantheios** — CMake locate wiring only for now (`LIBVER_WITH_PANTHEIOS` / quiet find); not linked yet;
+* **libCLImate** — later (not wired yet);
+
+
 ## Naming
 
 | Thing | Name |

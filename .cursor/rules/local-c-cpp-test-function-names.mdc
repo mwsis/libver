@@ -1,0 +1,40 @@
+---
+description: Local elaboration — unit-test functions use TEST_ prefix and SHOUTING parts except construct/language names
+globs: **/test/**/*.{c,cpp,h,hpp}
+alwaysApply: false
+---
+
+# C/C++ unit-test function naming (local elaboration)
+
+This is a **local** elaboration of shared **test-standards**. It is not yet in the upstream rulesbase.
+
+
+## Rule
+
+Unit-test functions (xTests cases and similar) must be named as follows:
+
+* Prefix **`TEST_`** (not `test_`).
+* Remaining name parts are **SHOUTING** (`UPPER_SNAKE`), separated by `_`.
+* **Exceptions** — keep the conventional spelling (not forced to shouting) when a part is:
+  * a **construct name** (API/type/function identifier as used in the product, e.g. `libver_find`, `libver_init`);
+  * a **language identifier** or reserved form (e.g. `NULL`, `errno` where that is the subject).
+
+
+## Examples
+
+```c
+/* ✅ required */
+static void TEST_libver_init_AND_libver_uninit(void);
+static void TEST_libver_find_STUB_RETURNS_NO_SCHEMES(void);
+static void TEST_libver_find_NULL_result(void);
+
+/* ❌ forbidden */
+static void test_init_uninit(void);
+static void test_find_null_result(void);
+static void TEST_INIT_UNINIT(void); /* hides the libver_init / libver_uninit constructs */
+```
+
+
+## Scope
+
+Applies to new and edited unit/component test sources under this repository until the rule is folded into upstream **test-standards**.

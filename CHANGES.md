@@ -4,9 +4,11 @@
 ## 0.0.1 - 10th August 2026
 
 * Added unit smoke **test.unit.libver.find** (stub `libver_find` / init / null-result) registered with **CTest**;
-* When **BUILD_TESTING** is ON, require **STLSoft** and **xTests** (in addition to **Diagnosticism** for scratch);
+* When **BUILD_TESTING** is ON, require **STLSoft** and **xTests**;
+* **Diagnosticism** is required always (CLI + scratch), not only for tests;
 * Added Synesis runners **run_all_unit_tests.sh** / **.cmd** and **run_all_scratch_tests.sh** (from **cstring**);
-* Scratch **test.scratch.libver** keeps its target/output name (product **libver** CLI comes later under **cli/**);
+* CLI stubs **cli/libver** and **frontends/cargo-libver** via shared **cli/common/entry.c** (**CLASP**, **sistools-common-c**, **cstring**, **collect-c**);
+* Pantheios: optional CMake locate (`LIBVER_WITH_PANTHEIOS`); not linked yet; **libCLImate** deferred;
 
 
 ## 0.0.0 - 10th August 2026
