@@ -115,6 +115,7 @@ endif()
 # - cstring;
 # - collect-c;
 # - sistools-common-c;
+# - tomlc17;
 #
 # optional (CMake wiring only for now):
 # - Pantheios;
@@ -247,6 +248,28 @@ else()
 endif()
 
 message(STATUS "libver Pantheios: LIBVER_HAS_PANTHEIOS=${LIBVER_HAS_PANTHEIOS} (not linked yet; libCLImate later)")
+
+
+# ######################################
+# tomlc17
+#
+# Installed as headers + static lib (pkg-config: libtomlc17); no CMake
+# package yet.
+
+find_path(TOMLC17_INCLUDE_DIR
+	NAMES tomlc17.h
+)
+find_library(TOMLC17_LIBRARY
+	NAMES tomlc17
+)
+
+if(NOT TOMLC17_INCLUDE_DIR OR NOT TOMLC17_LIBRARY)
+
+	message(FATAL_ERROR "tomlc17 not found (need tomlc17.h and libtomlc17). Install tomlc17 or set TOMLC17_INCLUDE_DIR / TOMLC17_LIBRARY.")
+else()
+
+	message("-- tomlc17 found (include '${TOMLC17_INCLUDE_DIR}'; library '${TOMLC17_LIBRARY}')")
+endif()
 
 
 # ######################################
