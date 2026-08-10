@@ -1,11 +1,11 @@
 # ######################################################################## #
-# File:     /core/test/scratch/libver/CMakeLists.txt
+# File:     /core/test/scratch/versions/CMakeLists.txt
 #
-# Purpose:  CMake for the libver scratch version printer
+# Purpose:  CMake for the versions scratch program
 #
 # ######################################################################## #
 
-define_scratch_program(test.scratch.libver entry.c)
+define_scratch_program(test.scratch.versions main.c)
 
 
 # ############################## end of file ############################# #

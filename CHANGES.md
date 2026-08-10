@@ -4,6 +4,7 @@
 ## 0.0.1 - 10th August 2026
 
 * Added unit smoke **test.unit.libver.find** (stub `libver_find` / init / null-result) registered with **CTest**;
+* Scratch version printer is **test.scratch.versions** (`core/test/scratch/versions/main.c`), not a `libver`-named binary;
 * When **BUILD_TESTING** is ON, require **STLSoft** and **xTests**;
 * **Diagnosticism** is required always (CLI + scratch), not only for tests;
 * Added Synesis runners **run_all_unit_tests.sh** / **.cmd** and **run_all_scratch_tests.sh** (from **cstring**);

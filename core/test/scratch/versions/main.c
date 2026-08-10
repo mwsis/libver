@@ -1,5 +1,5 @@
 /* /////////////////////////////////////////////////////////////////////////
- * File:    core/test/scratch/libver/entry.c
+ * File:    core/test/scratch/versions/main.c
  *
  * Purpose: Scratch program that prints the libver library version.
  *
@@ -40,7 +40,7 @@
  * ////////////////////////////////////////////////////////////////////// */
 
 
-/** \file core/test/scratch/libver/entry.c Scratch program that prints libver's version
+/** \file core/test/scratch/versions/main.c Scratch program that prints libver's version
  */
 
 /* /////////////////////////////////////////////////////////////////////////
