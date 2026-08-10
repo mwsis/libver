@@ -12,7 +12,7 @@
 ## Functional improvements
 
 * [x] ~~~Unit smoke for stub `libver_find` (**test.unit.libver.find** / **CTest**)~~~ - ✅;
-* [x] Scratch **test.scratch.python2**;
+* [ ] Scratch **test.scratch.python2**;
 * [x] ~~~Scratch **test.scratch.python3**: parse **pyproject.toml** `[project].version` via **tomlc17**~~~ - ✅;
 * [x] ~~~Scratch **test.scratch.rust**: parse **Cargo.toml** `[package].version` via **tomlc17**~~~ - ✅;
 * [x] ~~~Scratch **test.scratch.zig**: parse **build.zig.zon** `.version` (ZON line extract)~~~ - ✅;
