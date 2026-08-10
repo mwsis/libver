@@ -12,6 +12,7 @@
 ## Functional improvements
 
 * [x] ~~~Unit smoke for stub `libver_find` (**test.unit.libver.find** / **CTest**)~~~ - ✅;
+* [x] ~~~Scratch **test.scratch.rust**: parse **Cargo.toml** `[package].version` via **tomlc17**~~~ - ✅;
 * [ ] Core C-API (`libver_find` / result model);
 * [ ] Cargo backend (**Cargo.toml**);
 * [ ] Zig backend (**build.zig.zon**);

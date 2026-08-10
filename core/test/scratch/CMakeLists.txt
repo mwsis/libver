@@ -5,6 +5,7 @@
 #
 # ######################################################################## #
 
+add_subdirectory(rust)
 add_subdirectory(versions)
 
 

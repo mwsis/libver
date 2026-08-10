@@ -10,6 +10,7 @@
 * Added Synesis runners **run_all_unit_tests.sh** / **.cmd** and **run_all_scratch_tests.sh** (from **cstring**);
 * CLI stubs **cli/libver** and **frontends/cargo-libver** via shared **cli/common/entry.c** (**CLASP**, **sistools-common-c**, **cstring**, **collect-c**);
 * Pantheios: optional CMake locate (`LIBVER_WITH_PANTHEIOS`); not linked yet; **libCLImate** deferred;
+* Scratch **test.scratch.rust**: read **Cargo.toml** `[package].version` with installed **tomlc17**;
 
 
 ## 0.0.0 - 10th August 2026
