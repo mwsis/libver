@@ -80,6 +80,10 @@ endif(MSVC)
 # includes
 
 include(BuildType)
+if(BUILD_TESTING)
+
+	include(CTest)
+endif(BUILD_TESTING)
 include(LanguageFullVersion)
 include(LibverFindPackage)
 include(TargetMacros)
@@ -282,8 +286,6 @@ if(BUILD_TESTING)
 	find_package(xTests ${xTests_REQUIRED_VERSION_} REQUIRED)
 
 	message("-- CMake package xTests found (version ${xTests_VERSION}; ${xTests_REQUIRED_VERSION_} requested)")
-
-	include(CTest)
 endif(BUILD_TESTING)
 
 
