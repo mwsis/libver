@@ -7,6 +7,8 @@ CLI frontends. The primary build path is **CMake**.
 ## Table of Contents <!-- omit in toc -->
 
 - [CMake](#cmake)
+	- [Dependencies](#dependencies)
+- [Running tests](#running-tests)
 
 
 ## CMake
@@ -38,19 +40,20 @@ Execute `$ ./prepare_cmake.sh --help` for the full set of options.
 
 ### Dependencies
 
-Always:
+Full obtain / build / install steps for every third-party dependency (including **tomlc17**) are in [REQUISITES.md](./REQUISITES.md).
 
-* **STLSoft**, **Diagnosticism**
+Summary:
 
-When building CLIs / frontends (`BUILD_CLI` / `BUILD_FRONTENDS`):
-
-* **CLASP**, **cstring**, **collect-c**, **sistools-common-c**
+* Always: **STLSoft**, **Diagnosticism**, **tomlc17**;
+* When building CLIs / frontends (`BUILD_CLI` / `BUILD_FRONTENDS`): **CLASP**, **cstring**, **collect-c**, **sistools-common-c**;
+* When testing (`BUILD_TESTING`): **xTests**;
 
 Hint local build trees / install prefixes via **CMAKE_PREFIX_PATH** or:
 
 * `SISTOOLS_COMMON_C` — e.g. `$HOME/dev/sistools/sistools-common-c/_build`
 * `COLLECT_C` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/collect/collect-c/_build`
 * `PANTHEIOS` — for later logging; enable required locate with `-DLIBVER_WITH_PANTHEIOS=ON`
+* `TOMLC17_INCLUDE_DIR` / `TOMLC17_LIBRARY` — if **tomlc17** is not on the default search path
 
 After build, stub CLIs:
 

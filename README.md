@@ -32,6 +32,7 @@ language-specific rules (see [docs/detection-precedence.md](./docs/detection-pre
 ## Documentation
 
 * Design notes: [docs/README.md](./docs/README.md)
+* Requisites (third-party obtain / build / install): [REQUISITES.md](./REQUISITES.md)
 * Installation: [INSTALL.md](./INSTALL.md)
 * FAQ: [FAQ.md](./FAQ.md)
 * Changes: [CHANGES.md](./CHANGES.md)

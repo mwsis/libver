@@ -35,6 +35,7 @@
 * [x] ~~~**run_all_unit_tests.sh** / **.cmd** and **run_all_scratch_tests.sh** (from **cstring**)~~~ - ✅;
 * [ ] **run_all_examples.sh** / **generate_doxygen.sh** when examples/Doxygen exist;
 * [ ] GitHub Actions (**ci.yml** + **ci-cell.yml**);
+* [x] ~~~**REQUISITES.md** (deps obtain / build / install, including **tomlc17**)~~~ - ✅;
 * [ ] INSTALL / FAQ filled beyond stubs;
 
 
