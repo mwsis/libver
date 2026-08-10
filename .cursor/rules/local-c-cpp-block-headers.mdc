@@ -1,0 +1,61 @@
+---
+description: Local elaboration — C/C++ file block headers are lowercase except acronyms
+globs: **/*.{h,hpp,c,cpp}
+alwaysApply: false
+---
+
+# C/C++ file block-header casing (local elaboration)
+
+This is a **local** elaboration of shared **c-cpp-standards**. It is not yet in the upstream rulesbase.
+
+
+## Rule
+
+In C/C++ source and header files, **section block headers** (the labelled banner comments that divide a file — e.g. Synesis-style `/* ////…` / `* label` / `*/` blocks) must use **lowercase** labels, **except** when a word is an **acronym**.
+
+* Prefer all-lowercase words: `includes`, `types`, `version`, `helpers`, `implementation`.
+* Keep established acronyms in their conventional uppercase form: `API`, `REST`, `HTTP`, `JSON`, `XML`, `URL`, `UUID`, and similarly well-known initialisms.
+* Do **not** use Title Case (`Includes`, `Types`) or ALL CAPS for ordinary words (`INCLUDES`).
+* Multi-word labels stay lowercase except for acronym tokens: `public API`, `http helpers` → prefer `public API`, `HTTP helpers` when those acronyms appear.
+* The trailing `end of file` marker remains lowercase (already conventional).
+
+
+## Examples
+
+```c
+/* /////////////////////////////////////////////////////////////////////////
+ * version
+ */
+
+/* /////////////////////////////////////////////////////////////////////////
+ * includes
+ */
+
+/* /////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+/* /////////////////////////////////////////////////////////////////////////
+ * API
+ */
+
+/* ///////////////////////////// end of file //////////////////////////// */
+```
+
+```c
+/* ❌ forbidden — Title Case for ordinary words */
+/* /////////////////////////////////////////////////////////////////////////
+ * Includes
+ */
+
+/* /////////////////////////////////////////////////////////////////////////
+ * Types
+ */
+```
+
+
+## Scope
+
+* Applies to new and edited C/C++ files in this project.
+* When touching an existing file’s block headers, normalise them to this rule unless the operator asks to leave legacy casing.
+* When upstream **c-cpp-standards** absorbs this rule, this local file may be removed after sync.

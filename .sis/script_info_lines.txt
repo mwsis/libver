@@ -1,0 +1,2 @@
+libver discovers the definitive version of a software project from its directory
+Copyright (c) 2026, Matthew Wilson and Synesis Information Systems

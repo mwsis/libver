@@ -1,0 +1,64 @@
+---
+description: Local elaboration — pointer/reference declarators (*, &, &&) bind to the type
+globs: **/*.{h,hpp,c,cpp}
+alwaysApply: false
+---
+
+# C/C++ type-bound pointer and reference declarators (local elaboration)
+
+This is a **local** elaboration of shared **c-cpp-standards**. It is not yet in the upstream rulesbase.
+
+
+## Rule
+
+The pointer declarator `*` and the C++ reference declarators `&` and `&&` must be **applied locally to the type** — written on the **right-hand side of the type** to which they apply, **not** on the left-hand side of the name.
+
+* Glue the operator to the type (no space before `*` / `&` / `&&`); put a space before the identifier (or before a further cv-qualifier on the pointer itself):
+  * `T* p`;
+  * `T** const* p`;
+  * `const T* p`;
+  * `T* const p`;
+  * `T& r` (C++);
+  * `T&& rr` (C++);
+* Do **not** place the operator beside the name: forbid `T *p`, `T &r`, `T &&rr`, `const T *p`.
+* Prefer **one declarator per declaration** so type-bound `*` / `&` / `&&` cannot be misread across a comma list (`T* p, q` declares only `p` as a pointer).
+* The same placement applies in parameters, return types, cast targets, and typedefs/using-aliases.
+
+
+## Examples
+
+```c
+/* ✅ required — * binds to the type */
+const char* name;
+libver_result* result;
+char* const fixed;
+
+/* ❌ forbidden — * binds to the name */
+const char *name;
+libver_result *result;
+char *const fixed;
+```
+
+```cpp
+/* ✅ required — references bind to the type */
+int& ref;
+int&& rref;
+void f(const std::string& s);
+
+/* ❌ forbidden */
+int &ref;
+int &&rref;
+void f(const std::string &s);
+```
+
+
+## Relationship to west-`const`
+
+* Pointee `const` remains **west-`const`** (`const T* p`, not `T const* p`); see **local-c-cpp-west-const**;
+* This rule governs `*` / `&` / `&&` placement relative to the type; west-`const` governs `const` placement on the pointee;
+
+
+## Scope
+
+* Applies to new and edited C/C++ code in this project.
+* When upstream **c-cpp-standards** absorbs this rule, this local file may be removed after sync.

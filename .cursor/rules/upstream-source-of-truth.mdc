@@ -1,0 +1,32 @@
+---
+description: Locate and refresh shared Cursor rules from the upstream source-of-truth repos under $HOME
+alwaysApply: true
+---
+
+# Upstream Cursor rules (source of truth)
+
+Cursor loads **project** rules only from this repository's `.cursor/rules/`. It cannot natively follow a HOME-path lookup config. This project therefore keeps a thin local mirror (symlinks, not copies) of shared rules, refreshed from an upstream tree under the operator's `$HOME`.
+
+## Upstream candidates (first match wins)
+
+Resolve these as `$HOME/<path>/.cursor/rules` and use the **first directory that exists**:
+
+1. `dev/synesissoftware/forks/freelibs`
+2. `dev/synesissoftware/freelibs`
+3. `dev/sis/SISTrS/SISTrS`
+4. `dev/sis/SISTrS`
+
+Paths are relative to the **logged-in user's home directory**, not to this project. This project may move; do not assume a fixed relative path from the repo root to the upstream tree.
+
+## Session and refresh policy
+
+1. **At the start of a session** in this project (and again from time to time during long work), **ask the operator** whether to refresh local rules from the upstream source of truth.
+2. If they agree, run `scripts/sync-cursor-rules-from-upstream.sh` (or explain what it will do if you cannot run it).
+3. Do **not** silently copy upstream rule bodies into new local `.mdc` files. The sync script must **point at** upstream files (symlinks to absolute `$HOME/...` paths).
+4. Do **not** edit upstream rules from this project unless the operator explicitly asks to change the shared source of truth.
+5. This file (`upstream-source-of-truth.mdc`) is local project policy; the sync script must leave it alone.
+6. **Local elaborations** may live as real (non-symlink) files named `local-*.mdc` under `.cursor/rules/`. The sync script must preserve them. Prefer this for project-only or not-yet-upstreamed rules; do not edit the symlinked shared `*.mdc` files in place.
+
+## If the mirror is missing
+
+If shared `*.mdc` rules are absent under `.cursor/rules/` (aside from this file and any `local-*.mdc` elaborations), treat that as stale/unconfigured: ask to run the sync script before relying on freelibs/SISTrS standards.

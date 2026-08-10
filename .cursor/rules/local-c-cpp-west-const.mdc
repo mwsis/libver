@@ -1,0 +1,45 @@
+---
+description: Local elaboration — west-const is mandatory on all C/C++ pointer types
+globs: **/*.{h,hpp,c,cpp}
+alwaysApply: false
+---
+
+# C/C++ west-`const` on pointer types (local elaboration)
+
+This is a **local** elaboration of shared **c-cpp-standards**. It is not yet in the upstream rulesbase; do not treat a missing upstream copy as permission to use east-`const`.
+
+
+## Rule
+
+**West-`const` is mandatory on all pointer types** in C and C++.
+
+* Place `const` **before** the pointee type: `const T*`, not `T const*`.
+* The same applies through cv layers on the pointee: prefer `const volatile T*` over `T const volatile*`.
+* Pointer-to-`const` and const pointer remain distinct; west-`const` governs only where `const` qualifies the pointee:
+  * `const T* p` — pointer to const `T` (required form);
+  * `T* const p` — const pointer to `T` (unchanged; `const` after `*` is correct here);
+  * `const T* const p` — const pointer to const `T` (required form for the pointee).
+
+
+## Examples
+
+```c
+/* ✅ required */
+const char* name;
+const libver_result* result;
+char* const fixed;              /* const pointer, non-const pointee */
+const char* const both;
+
+/* ❌ forbidden (east-const on the pointee) */
+char const* name;
+libver_result const* result;
+char const* const both;
+```
+
+
+## Scope
+
+* Applies to declarations, parameters, return types, casts, and typedefs involving pointers.
+* Prefer matching existing project headers when they already use west-`const`.
+* Bind `*` to the type (`const T* p`, not `const T *p`); see **local-c-cpp-local-declarators**.
+* When upstream **c-cpp-standards** absorbs this rule, this local file may be removed after sync.
