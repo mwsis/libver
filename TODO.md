@@ -15,6 +15,8 @@
 * [x] Scratch **test.scratch.python2**;
 * [x] ~~~Scratch **test.scratch.python3**: parse **pyproject.toml** `[project].version` via **tomlc17**~~~ - ✅;
 * [x] ~~~Scratch **test.scratch.rust**: parse **Cargo.toml** `[package].version` via **tomlc17**~~~ - ✅;
+* [x] ~~~Scratch **test.scratch.zig**: parse **build.zig.zon** `.version` (ZON line extract)~~~ - ✅;
+* [ ] Robust **build.zig.zon** `.version` extraction: use a small lexical scanner for the top-level field, comments, multiline whitespace, string decoding, and SemVer validation; a full ZON parser is unnecessary;
 * [x] Scratch **test.scratch.zip**;
 * [ ] Core C-API (`libver_find` / result model);
 * [ ] Cargo backend (**Cargo.toml**);
@@ -24,6 +26,7 @@
 * [ ] **cargo-libver** frontend (real discovery behaviour);
 * [ ] Wire **Pantheios** logging; adopt **libCLImate** later;
 * [ ] Python / Ruby / C++ backends;
+* [ ] Consider embedding **TCC** (as a dynamic library) for C version checking — necessity not yet determined;
 
 
 ## Nonfunctional improvements

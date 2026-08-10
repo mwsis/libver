@@ -1,14 +1,15 @@
 # ######################################################################## #
-# File:     /core/test/scratch/CMakeLists.txt
+# File:     /core/test/scratch/zig/CMakeLists.txt
 #
-# Purpose:  CMake lists for core scratch tests
+# Purpose:  CMake for the build.zig.zon scratch program
 #
 # ######################################################################## #
 
-add_subdirectory(python3)
-add_subdirectory(rust)
-add_subdirectory(versions)
-add_subdirectory(zig)
+add_executable(test.scratch.zig
+	entry.c
+)
+
+define_target_compile_options(test.scratch.zig)
 
 
 # ############################## end of file ############################# #

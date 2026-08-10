@@ -12,6 +12,7 @@
 * Pantheios: optional CMake locate (`LIBVER_WITH_PANTHEIOS`); not linked yet; **libCLImate** deferred;
 * Scratch **test.scratch.python3**: read **pyproject.toml** `[project].version` with installed **tomlc17**;
 * Scratch **test.scratch.rust**: read **Cargo.toml** `[package].version` with installed **tomlc17**;
+* Scratch **test.scratch.zig**: read **build.zig.zon** `.version` (minimal ZON line extract; not TOML);
 * Added **REQUISITES.md** (obtain / build / install for all third-party deps, including **tomlc17**);
 
 
