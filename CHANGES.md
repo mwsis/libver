@@ -10,6 +10,9 @@
 * Fixtures under **core/test/fixtures/**; component tests **test.component.libver.find** (Cargo-only, Zig-only, Cargo-over-Zig, no-match, missing dir);
 * Unit smoke **test.unit.libver.find** no longer expects a stub empty find;
 * CLI **CLASP** table uses **specifications** (not obsolete **aliases**);
+* **libver** CLI calls `libver_find` (all schemes; omitted directory is the process cwd);
+* **cargo-libver** shares that entry but probes **Cargo.toml** only;
+* CLI prints `scheme` / `version` / `source`; process status follows `LIBVER_RC_*` (usage errors are 1);
 
 
 ## 0.0.1 - 16th September 2026

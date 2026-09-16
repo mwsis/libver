@@ -31,7 +31,7 @@ void libver_result_free(
 );
 ```
 
-* `dir` is a directory path; NULL or empty is a precondition violation (not "use cwd");
+* `dir` is a directory path; NULL or empty is a precondition violation (not "use cwd"). The **libver** / **cargo-libver** CLIs resolve an omitted directory to the process cwd before calling the API;
 * `flags` is reserved; pass 0;
 * `schemes` is `LIBVER_SCHEMES_ALL` (`"*"`) or a single scheme name;
 * On `LIBVER_RC_SUCCESS`, `result` is populated and the caller must call `libver_result_free`;

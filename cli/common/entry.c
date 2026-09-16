@@ -1,7 +1,7 @@
 /* /////////////////////////////////////////////////////////////////////////
  * File:    cli/common/entry.c
  *
- * Purpose: Shared CLASP entry stub for libver CLI frontends.
+ * Purpose: Shared CLASP entry for libver CLI frontends.
  *
  * Created: 10th August 2026
  * Updated: 16th September 2026
@@ -40,7 +40,7 @@
  * ////////////////////////////////////////////////////////////////////// */
 
 
-/** \file cli/common/entry.c Shared CLASP entry stub for libver CLI frontends
+/** \file cli/common/entry.c Shared CLASP entry for libver CLI frontends
  *
  * Compile with -DLIBVER_TOOL_NAME=\"libver\" (or \"cargo-libver\", etc.).
  */
@@ -67,6 +67,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+# include <direct.h>
+#else /* ? _WIN32 */
+# include <unistd.h>
+#endif /* _WIN32 */
+
 
 /* /////////////////////////////////////////////////////////////////////////
  * macros
@@ -87,6 +93,19 @@
 #define USAGE                           TOOLNAME " [ ... flags/options ... ] [ <directory> ]"
 
 #define SIS_DOTSTAR(slice)              (int)(slice).len, (slice).ptr
+
+#define CLI_DIR_MAX                     (4096)
+
+/* cargo-libver may override these (Cargo.toml only; Cargo-oriented help).
+ * libver defaults to every known scheme in documented precedence order.
+ */
+#ifndef LIBVER_CLI_SCHEMES
+# define LIBVER_CLI_SCHEMES             LIBVER_SCHEMES_ALL
+#endif /* !LIBVER_CLI_SCHEMES */
+
+#ifndef LIBVER_CLI_DESCRIPTION
+# define LIBVER_CLI_DESCRIPTION         DESCRIPTION
+#endif /* !LIBVER_CLI_DESCRIPTION */
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -110,15 +129,182 @@ static clasp_specification_t const Specifications[] =
 
 static
 int
+copy_slice_(
+    char*           dest
+,   size_t          cap
+,   clasp_slice_t   slice
+)
+{
+    if (slice.len >= cap)
+    {
+        return -1;
+    }
+
+    memcpy(dest, slice.ptr, slice.len);
+    dest[slice.len] = '\0';
+
+    return 0;
+}
+
+static
+int
+fill_cwd_(
+    char*   buf
+,   size_t  cap
+)
+{
+#ifdef _WIN32
+    if (NULL == _getcwd(buf, (int)cap))
+#else /* ? _WIN32 */
+    if (NULL == getcwd(buf, cap))
+#endif /* _WIN32 */
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+static
+int
+resolve_dir_(
+    const clasp_arguments_t*    args
+,   char*                       buf
+,   size_t                      cap
+)
+{
+    if (1 < args->numValues)
+    {
+        fprintf(
+            stderr
+        ,   "%.*s: unexpected argument: '%.*s'\n"
+        ,   SIS_DOTSTAR(args->programName)
+        ,   SIS_DOTSTAR(args->values[1].value)
+        );
+
+        return -1;
+    }
+
+    if (1 == args->numValues)
+    {
+        if (0 == args->values[0].value.len)
+        {
+            fprintf(
+                stderr
+            ,   "%.*s: directory argument is empty\n"
+            ,   SIS_DOTSTAR(args->programName)
+            );
+
+            return -1;
+        }
+
+        if (0 != copy_slice_(buf, cap, args->values[0].value))
+        {
+            fprintf(
+                stderr
+            ,   "%.*s: directory path is too long\n"
+            ,   SIS_DOTSTAR(args->programName)
+            );
+
+            return -1;
+        }
+
+        return 0;
+    }
+
+    if (0 != fill_cwd_(buf, cap))
+    {
+        fprintf(
+            stderr
+        ,   "%.*s: failed to determine the current directory: %s\n"
+        ,   SIS_DOTSTAR(args->programName)
+        ,   strerror(errno)
+        );
+
+        return -1;
+    }
+
+    return 0;
+}
+
+static
+const char*
+rc_message_(
+    int rc
+)
+{
+    switch (rc)
+    {
+    case LIBVER_RC_NO_MATCH:
+        if (0 == strcmp(LIBVER_CLI_SCHEMES, LIBVER_SCHEME_CARGO))
+        {
+            return "no Cargo.toml version";
+        }
+        return "no recognised project version";
+    case LIBVER_RC_DIR_NOT_FOUND:
+        return "directory not found";
+    case LIBVER_RC_DIR_NOT_READABLE:
+        return "directory not readable";
+    case LIBVER_RC_PARSE:
+        return "failed to parse project version marker";
+    case LIBVER_RC_NO_VERSION:
+        return "project marker has no usable version";
+    case LIBVER_RC_NO_MEMORY:
+        return "out of memory";
+    case LIBVER_RC_IO:
+        return "I/O failure reading project version marker";
+    case LIBVER_RC_INVALID:
+        return "invalid argument";
+    default:
+        return "version discovery failed";
+    }
+}
+
+static
+int
+exit_from_rc_(
+    int rc
+)
+{
+    if (LIBVER_RC_SUCCESS == rc)
+    {
+        return EXIT_SUCCESS;
+    }
+
+    if (rc < 0)
+    {
+        return EXIT_FAILURE;
+    }
+
+    return rc;
+}
+
+static
+void
+print_hit_(
+    const libver_scheme_result_t* hit
+)
+{
+    printf("scheme:  %s\n", hit->scheme);
+    printf("version: %s\n", hit->version);
+    printf("source:  %s\n", hit->source);
+}
+
+static
+int
 run(
     clasp_arguments_t const*        args
 ,   clasp_specification_t const*    specifications
 )
 {
-    clasp_argument_t const* firstUnusedFlagOrOption;
+    const clasp_argument_t* firstUnusedFlagOrOption;
     int                     flags = 0;
+    char                    dir[CLI_DIR_MAX];
+    libver_result_t         result;
+    int                     ir;
+    int                     rc;
 
-    /* Reference dependent libraries so stubs pull them in when linked. */
+    /* Reference dependent libraries so they are pulled in when linked. */
     ((void)cstring_create);
     ((void)collect_c_cq_version);
 
@@ -131,7 +317,7 @@ run(
         ,   TOOLNAME
         ,   SUMMARY
         ,   COPYRIGHT
-        ,   DESCRIPTION
+        ,   LIBVER_CLI_DESCRIPTION
         ,   USAGE
         ,   PROGRAM_VER_MAJOR
         ,   PROGRAM_VER_MINOR
@@ -170,13 +356,48 @@ run(
         return EXIT_FAILURE;
     }
 
-    fprintf(
-        stderr
-    ,   "%.*s: version discovery is not implemented yet\n"
-    ,   SIS_DOTSTAR(args->programName)
-    );
+    if (0 != resolve_dir_(args, dir, sizeof(dir)))
+    {
+        return EXIT_FAILURE;
+    }
 
-    return EXIT_FAILURE;
+    ir = libver_init(NULL);
+
+    if (0 != ir)
+    {
+        fprintf(
+            stderr
+        ,   "%.*s: failed to initialise libver: %d\n"
+        ,   SIS_DOTSTAR(args->programName)
+        ,   ir
+        );
+
+        return EXIT_FAILURE;
+    }
+
+    memset(&result, 0, sizeof(result));
+
+    rc = libver_find(dir, 0, LIBVER_CLI_SCHEMES, &result);
+
+    if (LIBVER_RC_SUCCESS == rc)
+    {
+        print_hit_(&result.schemes[0]);
+    }
+    else
+    {
+        fprintf(
+            stderr
+        ,   "%.*s: %s: '%s'\n"
+        ,   SIS_DOTSTAR(args->programName)
+        ,   rc_message_(rc)
+        ,   dir
+        );
+    }
+
+    libver_result_free(&result);
+    libver_uninit();
+
+    return exit_from_rc_(rc);
 }
 
 
@@ -184,7 +405,7 @@ run(
  * main
  */
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
     stlsoft_C_string_slice_m_t const    programName     = platformstl_C_get_executable_name_from_path(argv[0]);
     unsigned                            flags           = 0;

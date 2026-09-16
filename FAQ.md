@@ -19,7 +19,7 @@ Issues forum it will be used to create one.
 
 See [INSTALL.md](./INSTALL.md) for the recommended **CMake** flow
 (**prepare_cmake.sh**, then **build_cmake.sh**). Default options build the
-static core, stub CLIs, unit/component tests, and language scratches.
+static core, CLIs, unit/component tests, and language scratches.
 
 
 ## Q2: "What third-party dependencies do I need?"
@@ -35,10 +35,10 @@ and is not linked.
 
 ## Q3: "Do the CLIs discover a project's version yet?"
 
-**libver** and **cargo-libver** binaries still honour `--help` / `--version`
-only (Phase 3). Core `libver_find` discovers **Cargo.toml** and
-**build.zig.zon** versions in the given directory; see
-[docs/roadmap.md](./docs/roadmap.md).
+Yes, for **Cargo.toml** and **build.zig.zon** in the given directory (not
+recursively). **libver** uses every known scheme (Cargo, then Zig);
+**cargo-libver** looks at **Cargo.toml** only. Omitted directory is cwd.
+See [INSTALL.md](./INSTALL.md#running-the-clis) for smoke commands.
 
 
 ## Q4: "Where is the design documented?"

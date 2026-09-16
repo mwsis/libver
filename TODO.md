@@ -23,8 +23,8 @@
 * [x] ~~~Cargo backend (**Cargo.toml**)~~~ - ✅;
 * [x] ~~~Zig backend (**build.zig.zon**)~~~ - ✅;
 * [x] ~~~CLI stubs **libver** / **cargo-libver** (**CLASP** + **sistools-common-c**)~~~ - ✅;
-* [ ] Shared **libver** CLI (real discovery behaviour);
-* [ ] **cargo-libver** frontend (real discovery behaviour);
+* [x] ~~~Shared **libver** CLI (real discovery behaviour)~~~ - ✅;
+* [x] ~~~**cargo-libver** frontend (real discovery behaviour)~~~ - ✅;
 * [ ] Wire **Pantheios** logging; adopt **libCLImate** later;
 * [ ] Python / Ruby / C++ backends;
 * [ ] Consider embedding **TCC** (as a dynamic library) for C version checking — necessity not yet determined;

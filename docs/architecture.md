@@ -83,8 +83,8 @@ When `BUILD_TESTING`:
 When `BUILD_CLI` or `BUILD_FRONTENDS`:
 
 * **CLASP** — command-line parsing (now);
-* **collect-c** — linked into CLI stubs for upcoming use;
-* **cstring** — linked into CLI stubs for upcoming use;
+* **collect-c** — linked into the CLIs (reserved for later use);
+* **cstring** — linked into the CLIs (reserved for later use);
 * **sistools-common-c** — shared help/version helpers (`stcc_show_*`);
 
 Optional locate-only:

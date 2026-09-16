@@ -41,9 +41,9 @@ Language-extraction scratches (**test.scratch.python2**, **python3**, **rust**, 
 
 ## Phase 3 — Public CLI surfaces
 
-* [ ] **cli/libver** — print language, version, source;
-* [ ] **frontends/cargo-libver** — Cargo-subcommand-friendly name/help;
-* [ ] Manual smoke: `libver` and `cargo libver` with **cargo-libver** on `PATH`;
+* [x] **cli/libver** — print language, version, source;
+* [x] **frontends/cargo-libver** — Cargo-subcommand-friendly name/help (Cargo.toml only);
+* [x] Manual smoke: `libver` and `cargo libver` with **cargo-libver** on `PATH`;
 
 
 ## Phase 4 — Harden the result model

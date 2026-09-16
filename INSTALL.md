@@ -4,16 +4,18 @@
 CLI frontends. The primary build path is **CMake**.
 
 The C core (`libver_find`) discovers **Cargo.toml** and **build.zig.zon**
-versions in a given directory. Shared **libver** / **cargo-libver** CLIs
-still honour `--help` / `--version` only (Phase 3). Obtain third-party
-dependencies from [REQUISITES.md](./REQUISITES.md) — this file does not
-repeat those install novels.
+versions in a given directory (not recursively). The shared **libver** CLI
+probes every known scheme in that order; **cargo-libver** probes
+**Cargo.toml** only. Obtain third-party dependencies from
+[REQUISITES.md](./REQUISITES.md) — this file does not repeat those install
+novels.
 
 
 ## Table of Contents <!-- omit in toc -->
 
 - [CMake](#cmake)
 	- [Dependencies](#dependencies)
+- [Running the CLIs](#running-the-clis)
 - [Running tests](#running-tests)
 
 
@@ -64,7 +66,7 @@ Hint local build trees / install prefixes via **CMAKE_PREFIX_PATH** or:
 * `STLSOFT` — unpacked tree (include path `${STLSOFT}/include`); see **REQUISITES.md**
 * `TOMLC17_INCLUDE_DIR` / `TOMLC17_LIBRARY` — if **tomlc17** is not on the default search path
 
-After build, stub CLIs:
+After build, CLIs:
 
 ```bash
 $ ./_build/cli/libver/libver --help
@@ -93,6 +95,48 @@ Useful flags:
 * `--no-make` / `-M` — do not rebuild before running;
 * `--list-only` / `-l` — list matching programs only;
 * `--unit-only` / `--component-only` — filter (**run_all_unit_tests.sh**);
+
+
+## Running the CLIs
+
+Omitted `<directory>` is the process current working directory (resolved,
+then passed to `libver_find`). Detection is **not** recursive.
+
+```bash
+$ ./_build/cli/libver/libver core/test/fixtures/cargo-only
+scheme:  cargo
+version: 1.2.3
+source:  core/test/fixtures/cargo-only/Cargo.toml
+
+$ ./_build/cli/libver/libver core/test/fixtures/zig-only
+scheme:  zig
+version: 0.4.5
+source:  core/test/fixtures/zig-only/build.zig.zon
+
+$ ./_build/cli/libver/libver core/test/fixtures/empty
+libver: no recognised project version: '.../empty'
+```
+
+The last command exits **1** (`LIBVER_RC_NO_MATCH`). Other positive
+`LIBVER_RC_*` values are used as the process status; usage errors also
+exit **1**.
+
+**cargo-libver** is the Cargo-subcommand name. Invoke it directly, or put
+its directory on `PATH` and run `cargo libver` (Cargo looks up
+`cargo-libver`):
+
+```bash
+$ ./_build/frontends/cargo-libver/cargo-libver core/test/fixtures/cargo-only
+scheme:  cargo
+version: 1.2.3
+source:  core/test/fixtures/cargo-only/Cargo.toml
+
+$ PATH="$PWD/_build/frontends/cargo-libver:$PATH" cargo libver
+```
+
+`cargo libver` needs a Cargo tree as cwd (or pass `<directory>` to the
+standalone binary). It does not probe **build.zig.zon**. If `cargo libver`
+is not picked up, use the standalone **cargo-libver** path above.
 
 
 <!-- ########################### end of file ########################### -->
