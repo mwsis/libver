@@ -96,6 +96,46 @@ typedef struct python_hit_t                                 python_hit_t;
  * helpers
  */
 
+static libver_truthy_t
+is_dots_(
+    char const* s
+)
+{
+    assert(NULL != s);
+
+    switch (s[0])
+    {
+    case '.':
+
+        switch (s[1])
+        {
+        case '.':
+
+            switch (s[2])
+            {
+            case '\0':
+
+                return LIBVER_TRUTHY_TRUE_; /* ".." */
+            default:
+
+                return LIBVER_TRUTHY_FALSE_;
+            }
+        case '\0':
+
+            return LIBVER_TRUTHY_TRUE_; /* "." */
+        default:
+
+            return LIBVER_TRUTHY_FALSE_;
+        }
+        break;
+    case '\0':
+    default:
+
+        return LIBVER_TRUTHY_FALSE_; /* anything else */
+    }
+}
+
+
 static char const*
 skip_ws_(
     char const* s
@@ -287,8 +327,7 @@ list_subdirs_(
                 continue;
             }
 
-            if (0 == strcmp(fd.cFileName, ".") ||
-                0 == strcmp(fd.cFileName, ".."))
+            if (is_dots_(fd.cFileName))
             {
                 continue;
             }
@@ -333,8 +372,7 @@ list_subdirs_(
                 break;
             }
 
-            if (0 == strcmp(ent->d_name, ".") ||
-                0 == strcmp(ent->d_name, ".."))
+            if (is_dots_(ent->d_name))
             {
                 continue;
             }
@@ -344,7 +382,8 @@ list_subdirs_(
                     ,   sizeof(path)
                     ,   dir
                     ,   ent->d_name
-                    ))
+                    )
+            )
             {
                 continue;
             }

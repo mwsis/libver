@@ -65,10 +65,15 @@
 #define LIBVER_INTERNAL_MESSAGE_MAX                         (LIBVER_INTERNAL_PATH_MAX + 128)
 #define LIBVER_INTERNAL_MAX_SCHEMES                         (16)
 
+#define LIBVER_TRUTHY_FALSE_                                (0)
+#define LIBVER_TRUTHY_TRUE_                                 (1)
+
 
 /* /////////////////////////////////////////////////////////////////////////
  * types
  */
+
+typedef int                                                 libver_truthy_t;
 
 struct libver_internal_hit_t
 {
