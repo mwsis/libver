@@ -17,7 +17,7 @@ Status: Phase 2 pragmatic contract — matches **libver/libver.h**. Warning / co
 ## Entry points
 
 ```c
-int libver_init(void);
+int libver_init(void* reserved0);   /* pass NULL */
 void libver_uninit(void);
 
 int libver_find(

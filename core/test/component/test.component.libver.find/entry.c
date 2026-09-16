@@ -201,7 +201,7 @@ static void TEST_libver_find_CARGO_ONLY(void)
     fixture_dir_(dir, sizeof(dir), "cargo-only");
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
 
@@ -225,7 +225,7 @@ static void TEST_libver_find_ZIG_ONLY(void)
     fixture_dir_(dir, sizeof(dir), "zig-only");
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
 
@@ -246,7 +246,7 @@ static void TEST_libver_find_CARGO_AND_ZIG_CARGO_WINS(void)
     fixture_dir_(dir, sizeof(dir), "cargo-and-zig");
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
 
@@ -267,7 +267,7 @@ static void TEST_libver_find_CARGO_AND_ZIG_FILTER_ZIG(void)
     fixture_dir_(dir, sizeof(dir), "cargo-and-zig");
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEME_ZIG, &result);
 
@@ -288,7 +288,7 @@ static void TEST_libver_find_ZIG_LEXICAL(void)
     fixture_dir_(dir, sizeof(dir), "zig-lexical");
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
 
@@ -309,7 +309,7 @@ static void TEST_libver_find_NO_MATCH(void)
     fixture_dir_(dir, sizeof(dir), "empty");
     memset(&result, 0x5a, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
 
@@ -328,7 +328,7 @@ static void TEST_libver_find_DIR_NOT_FOUND(void)
 
     memset(&result, 0x5a, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(
             "/no/such/libver/fixture/dir"
@@ -354,7 +354,7 @@ static void TEST_libver_find_CARGO_FILTER_ON_ZIG_ONLY(void)
     fixture_dir_(dir, sizeof(dir), "zig-only");
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEME_CARGO, &result);
 
@@ -402,7 +402,7 @@ static void TEST_libver_find_UNREADABLE_DIR(void)
 
     memset(&result, 0, sizeof(result));
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
 

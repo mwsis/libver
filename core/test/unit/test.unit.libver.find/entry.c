@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 
 static void TEST_libver_init_AND_libver_uninit(void)
 {
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     libver_uninit();
 }
@@ -119,7 +119,7 @@ static void TEST_libver_find_NULL_result(void)
 {
     int r;
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
 
     /* Documented as a precondition violation — exercise the defensive
      * return rather than crashing.
