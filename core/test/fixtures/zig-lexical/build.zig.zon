@@ -1,0 +1,16 @@
+.{
+    .name = .libver_fixture_zig_lexical,
+    // decoy .version = "9.9.9" must not win
+    .dependencies = .{
+        .nested = .{
+            .url = "https://example.com/nested.tar.gz",
+            .version = "8.8.8",
+        },
+    },
+    .paths = .{
+        ".version = \"7.7.7\"",
+        "build.zig.zon",
+    },
+    .version =
+        "2.0.1",
+}

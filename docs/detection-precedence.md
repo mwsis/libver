@@ -1,12 +1,13 @@
 # **libver** detection precedence <!-- omit in toc -->
 
-Status: agreed direction for v0; exact order may be tightened when fixtures land.
+Status: v0 order in force for Phase 2 (Cargo, then Zig). Python and later ecosystems remain listed for planning only.
 
 
 ## Table of Contents <!-- omit in toc -->
 
 - [v0 language set](#v0-language-set)
 - [Version sources](#version-sources)
+- [Detection scope](#detection-scope)
 - [Proposed detection order](#proposed-detection-order)
 - [Conflict policy](#conflict-policy)
 
@@ -38,15 +39,20 @@ Next backends:
 | C / C++ | Established patterns and/or experimental preprocessor-only probes |
 
 
+## Detection scope
+
+`libver_find` probes **files in the given directory only** (not a recursive tree walk). Markers are `dir/Cargo.toml` and `dir/build.zig.zon`.
+
+
 ## Proposed detection order
 
 When a tree could match multiple ecosystems, use an explicit ordered probe list. Working proposal for v0:
 
 1. Cargo (`Cargo.toml`)
 2. Zig (`build.zig.zon`)
-3. Python (`pyproject.toml`, then legacy Python markers)
-4. Ruby (heuristics)
-5. C / C++ (heuristics)
+3. Python (`pyproject.toml`, then legacy Python markers) — Phase 5
+4. Ruby (heuristics) — Phase 5
+5. C / C++ (heuristics) — Phase 5
 
 Document any change to this order in this file and in **CHANGES.md**.
 

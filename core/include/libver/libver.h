@@ -111,6 +111,49 @@ extern "C" {
 
 
 /* /////////////////////////////////////////////////////////////////////////
+ * constants
+ */
+
+/** Success. */
+#define LIBVER_RC_SUCCESS                                   (0)
+
+/** No recognised project marker in the search directory. */
+#define LIBVER_RC_NO_MATCH                                  (1)
+
+/** Search directory does not exist. */
+#define LIBVER_RC_DIR_NOT_FOUND                             (2)
+
+/** Search directory exists but is not usable (not a directory, or not
+ * readable).
+ */
+#define LIBVER_RC_DIR_NOT_READABLE                          (3)
+
+/** A marker was found but could not be parsed. */
+#define LIBVER_RC_PARSE                                     (4)
+
+/** A marker was found but no usable version field was present. */
+#define LIBVER_RC_NO_VERSION                                (5)
+
+/** Memory allocation failed. */
+#define LIBVER_RC_NO_MEMORY                                 (6)
+
+/** I/O failure while reading a marker file. */
+#define LIBVER_RC_IO                                        (7)
+
+/** Invalid argument (defensive; may also be a precondition violation). */
+#define LIBVER_RC_INVALID                                   (-1)
+
+/** Scheme name for Cargo / Rust (`Cargo.toml`). */
+#define LIBVER_SCHEME_CARGO                                 "cargo"
+
+/** Scheme name for Zig (`build.zig.zon`). */
+#define LIBVER_SCHEME_ZIG                                   "zig"
+
+/** @a schemes value selecting every known scheme in precedence order. */
+#define LIBVER_SCHEMES_ALL                                  "*"
+
+
+/* /////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -119,10 +162,11 @@ struct libver_scheme_result_t
     const char* scheme;
     int         major;
     int         minor;
-    int         path;
+    int         patch;
     int         alphabeta;
     int         build;
     const char* version;
+    const char* source;
 };
 #ifndef __cplusplus
 typedef struct libver_scheme_result_t                       libver_scheme_result_t;
@@ -157,7 +201,7 @@ typedef struct libver_result_t                              libver_result_t;
  */
 int
 libver_init(
-    void*
+    void* reserved0
 );
 
 /** Uninitialises the API
@@ -178,21 +222,27 @@ libver_uninit(void);
 
 /** Finds the definitive project version(s) for @a dir.
  *
+ * Probes @a dir (not recursively) in documented precedence order: Cargo
+ * (`Cargo.toml`) then Zig (`build.zig.zon`). The first matching scheme that
+ * yields a version is the winner.
+ *
  * @param dir
  *   The directory to search for project version(s);
  * @param flags
- *   The flags to use for the search;
+ *   Reserved; pass 0;
  * @param schemes
- *   The schemes to use for the search;
+ *   LIBVER_SCHEMES_ALL ("*") for every known scheme, or a single scheme
+ *   name (LIBVER_SCHEME_CARGO, LIBVER_SCHEME_ZIG);
  * @param result
- *   The result of the search;
+ *   The result of the search. On success the caller must eventually call
+ *   libver_result_free(). On failure @a result is empty;
  *
  * @return
- *   - 0 on success;
- *   - non-zero on failure, being an error code;
+ *   - LIBVER_RC_SUCCESS (0) when a version was found;
+ *   - LIBVER_RC_NO_MATCH when no selected marker is present;
+ *   - other non-zero LIBVER_RC_* codes on failure;
  *
  * @pre Behaviour is undefined if @a dir is NULL or empty;
- * @pre Behaviour is undefined if @a flags is not a valid flag;
  * @pre Behaviour is undefined if @a schemes is NULL or empty;
  * @pre Behaviour is undefined if @a result is NULL;
  */

@@ -1,0 +1,7 @@
+.{
+    .name = .libver_fixture_both_zig,
+    .version = "9.8.7",
+    .paths = .{
+        "",
+    },
+}

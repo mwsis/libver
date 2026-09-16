@@ -16,11 +16,11 @@
 * [x] ~~~Scratch **test.scratch.python3**: parse **pyproject.toml** `[project].version` via **tomlc17**~~~ - ✅;
 * [x] ~~~Scratch **test.scratch.rust**: parse **Cargo.toml** `[package].version` via **tomlc17**~~~ - ✅;
 * [x] ~~~Scratch **test.scratch.zig**: parse **build.zig.zon** `.version` (ZON line extract)~~~ - ✅;
-* [ ] Robust **build.zig.zon** `.version` extraction: use a small lexical scanner for the top-level field, comments, multiline whitespace, string decoding, and SemVer validation; a full ZON parser is unnecessary;
+* [x] ~~~Robust **build.zig.zon** `.version` extraction: small lexical scanner for the top-level field, comments, multiline whitespace, string decoding, and SemVer validation; a full ZON parser is unnecessary~~~ - ✅;
 * [ ] Scratch **test.scratch.zip**;
-* [ ] Core C-API (`libver_find` / result model);
-* [ ] Cargo backend (**Cargo.toml**);
-* [ ] Zig backend (**build.zig.zon**);
+* [ ] Core C-API warnings / conflict records (result model Phase 4);
+* [x] ~~~Cargo backend (**Cargo.toml**)~~~ - ✅;
+* [x] ~~~Zig backend (**build.zig.zon**)~~~ - ✅;
 * [x] ~~~CLI stubs **libver** / **cargo-libver** (**CLASP** + **sistools-common-c**)~~~ - ✅;
 * [ ] Shared **libver** CLI (real discovery behaviour);
 * [ ] **cargo-libver** frontend (real discovery behaviour);

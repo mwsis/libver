@@ -1,9 +1,9 @@
 /* /////////////////////////////////////////////////////////////////////////
- * File:    core/test/unit/test.unit.libver.find/entry.c
+ * File:    cargo.c
  *
- * Purpose: Unit-tests for the libver_find() API (no fixture tree).
+ * Purpose: Cargo.toml backend: read [package].version via tomlc17.
  *
- * Created: 10th August 2026
+ * Created: 16th September 2026
  * Updated: 16th September 2026
  *
  * Home:    http://synesis.com.au/software/
@@ -40,100 +40,78 @@
  * ////////////////////////////////////////////////////////////////////// */
 
 
-/** \file core/test/unit/test.unit.libver.find/entry.c Unit-tests for libver_find()
+/** \file cargo.c Cargo.toml [package].version extraction
  */
-
 
 /* /////////////////////////////////////////////////////////////////////////
  * includes
  */
 
-/* /////////////////////////////////////
- * test component header file include(s)
- */
+#include "libver.internal.h"
 
-#include <libver/libver.h>
+#include <tomlc17.h>
 
-/* /////////////////////////////////////
- * general includes
- */
-
-/* xTests header files */
-#include <xtests/terse-api.h>
-
-/* STLSoft header files */
-#include <stlsoft/stlsoft.h>
-
-/* Standard C header files */
-#include <stdlib.h>
-#include <string.h>
+#include <assert.h>
 
 
 /* /////////////////////////////////////////////////////////////////////////
- * forward declarations
+ * API (internal)
  */
 
-static void TEST_libver_init_AND_libver_uninit(void);
-static void TEST_libver_find_NULL_result(void);
-static void TEST_libver_result_free_NULL(void);
-
-
-/* /////////////////////////////////////////////////////////////////////////
- * main
- */
-
-int main(int argc, char* argv[])
+int
+libver_backend_cargo_probe(
+    const char*             dir
+,   libver_internal_hit_t*  hit
+)
 {
-    int retCode = EXIT_SUCCESS;
-    int verbosity = 2;
+    char            path[LIBVER_INTERNAL_PATH_MAX];
+    int             rc;
+    toml_result_t   parsed;
+    toml_datum_t    version;
 
-    XTESTS_COMMANDLINE_PARSEVERBOSITY(argc, argv, &verbosity);
+    assert(NULL != dir);
+    assert(NULL != hit);
 
-    if (XTESTS_START_RUNNER("test.unit.libver.find", verbosity))
+    rc = libver_internal_regular_file_in_dir(
+            dir
+        ,   "Cargo.toml"
+        ,   path
+        ,   sizeof(path)
+        );
+
+    if (LIBVER_RC_SUCCESS != rc)
     {
-        XTESTS_RUN_CASE(TEST_libver_init_AND_libver_uninit);
-        XTESTS_RUN_CASE(TEST_libver_find_NULL_result);
-        XTESTS_RUN_CASE(TEST_libver_result_free_NULL);
-
-        XTESTS_PRINT_RESULTS();
-
-        XTESTS_END_RUNNER_UPDATE_EXITCODE(&retCode);
+        return rc;
     }
 
-    return retCode;
-}
+    parsed = toml_parse_file_ex(path);
 
+    if (!parsed.ok)
+    {
+        toml_free(parsed);
 
-/* /////////////////////////////////////////////////////////////////////////
- * test implementations
- */
+        return LIBVER_RC_PARSE;
+    }
 
-static void TEST_libver_init_AND_libver_uninit(void)
-{
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    version = toml_seek(parsed.toptab, "package.version");
 
-    libver_uninit();
-}
+    if (TOML_STRING != version.type || NULL == version.u.s)
+    {
+        toml_free(parsed);
 
-static void TEST_libver_find_NULL_result(void)
-{
-    int r;
+        return LIBVER_RC_NO_VERSION;
+    }
 
-    XTESTS_TEST_INTEGER_EQUAL(0, libver_init());
+    rc = libver_internal_hit_set_version(
+            hit
+        ,   LIBVER_SCHEME_CARGO
+        ,   path
+        ,   version.u.s
+        );
 
-    /* Documented as a precondition violation — exercise the defensive
-     * return rather than crashing.
-     */
-    r = libver_find(".", 0, LIBVER_SCHEMES_ALL, NULL);
+    toml_free(parsed);
 
-    XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_INVALID, r);
-
-    libver_uninit();
-}
-
-static void TEST_libver_result_free_NULL(void)
-{
-    libver_result_free(NULL);
+    return rc;
 }
 
 

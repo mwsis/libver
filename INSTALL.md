@@ -3,12 +3,11 @@
 **libver** is a C-core tool-suite: a static library with a C-API, plus thin
 CLI frontends. The primary build path is **CMake**.
 
-Phase 1 is a **stub scaffold**: `libver_find` does not detect project
-versions yet, and **libver** / **cargo-libver** only honour `--help` /
-`--version`. Real extraction lives in language scratches under
-**core/test/scratch/**. Obtain third-party dependencies from
-[REQUISITES.md](./REQUISITES.md) — this file does not repeat those
-install novels.
+The C core (`libver_find`) discovers **Cargo.toml** and **build.zig.zon**
+versions in a given directory. Shared **libver** / **cargo-libver** CLIs
+still honour `--help` / `--version` only (Phase 3). Obtain third-party
+dependencies from [REQUISITES.md](./REQUISITES.md) — this file does not
+repeat those install novels.
 
 
 ## Table of Contents <!-- omit in toc -->

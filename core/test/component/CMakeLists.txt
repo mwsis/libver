@@ -1,11 +1,11 @@
 # ######################################################################## #
-# File:     /core/test/unit/test.unit.libver.find/CMakeLists.txt
+# File:     /core/test/component/CMakeLists.txt
 #
-# Purpose:  CMake for the libver_find unit tests
+# Purpose:  CMake lists for libver core component tests
 #
 # ######################################################################## #
 
-define_automated_test_program(test.unit.libver.find entry.c)
+add_subdirectory(test.component.libver.find)
 
 
 # ############################## end of file ############################# #

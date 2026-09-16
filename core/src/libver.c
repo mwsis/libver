@@ -48,19 +48,85 @@
  */
 
 #include <libver/libver.h>
+#include "libver.internal.h"
 
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
 
 /* /////////////////////////////////////////////////////////////////////////
- * globals
+ * helpers
  */
 
+static int
+scheme_wanted_(
+    const char* schemes
+,   const char* name
+)
+{
+    assert(NULL != schemes);
+    assert(NULL != name);
 
-/* /////////////////////////////////////////////////////////////////////////
- * helper functions
- */
+    if (0 == strcmp(schemes, LIBVER_SCHEMES_ALL))
+    {
+        return 1;
+    }
+
+    return 0 == strcmp(schemes, name);
+}
+
+static int
+commit_hit_(
+    libver_result_t*                result
+,   libver_internal_hit_t const*    hit
+)
+{
+    int const rc = libver_internal_result_set(result, hit);
+
+    if (LIBVER_RC_SUCCESS != rc)
+    {
+        result->num_schemes = 0;
+        result->schemes = NULL;
+    }
+
+    return rc;
+}
+
+static int
+probe_scheme_(
+    const char*             dir
+,   const char*             schemes
+,   const char*             name
+,   int                     (*probe)(const char*, libver_internal_hit_t*)
+,   libver_result_t*        result
+,   int*                    done
+)
+{
+    libver_internal_hit_t   hit;
+    int                     rc;
+
+    if (!scheme_wanted_(schemes, name))
+    {
+        return LIBVER_RC_SUCCESS;
+    }
+
+    rc = probe(dir, &hit);
+
+    if (LIBVER_RC_NO_MATCH == rc)
+    {
+        return LIBVER_RC_SUCCESS;
+    }
+
+    *done = 1;
+
+    if (LIBVER_RC_SUCCESS != rc)
+    {
+        return rc;
+    }
+
+    return commit_hit_(result, &hit);
+}
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -69,17 +135,19 @@
 
 int
 libver_init(
-    void*
+    void* reserved0
 )
 {
-    /* Stub: no global state yet. */
+    ((void)reserved0);
+
+    /* No global state yet. */
     return 0;
 }
 
 void
 libver_uninit(void)
 {
-    /* Stub: no global state yet. */
+    /* No global state yet. */
 }
 
 int
@@ -90,20 +158,60 @@ libver_find(
 ,   libver_result_t*    result
 )
 {
-    (void)dir;
+    int rc;
+    int done = 0;
+
+    assert(NULL != dir);
+    assert('\0' != *dir);
+    assert(NULL != schemes);
+    assert('\0' != *schemes);
+
     (void)flags;
-    (void)schemes;
 
     if (NULL == result)
     {
-        return -1;
+        return LIBVER_RC_INVALID;
     }
 
-    result->num_schemes =   0;
-    result->schemes     =   NULL;
+    result->num_schemes = 0;
+    result->schemes = NULL;
 
-    /* Stub: no detection yet. */
-    return 1;
+    rc = libver_internal_check_dir(dir);
+
+    if (LIBVER_RC_SUCCESS != rc)
+    {
+        return rc;
+    }
+
+    rc = probe_scheme_(
+            dir
+        ,   schemes
+        ,   LIBVER_SCHEME_CARGO
+        ,   libver_backend_cargo_probe
+        ,   result
+        ,   &done
+        );
+
+    if (done || LIBVER_RC_SUCCESS != rc)
+    {
+        return rc;
+    }
+
+    rc = probe_scheme_(
+            dir
+        ,   schemes
+        ,   LIBVER_SCHEME_ZIG
+        ,   libver_backend_zig_probe
+        ,   result
+        ,   &done
+        );
+
+    if (done || LIBVER_RC_SUCCESS != rc)
+    {
+        return rc;
+    }
+
+    return LIBVER_RC_NO_MATCH;
 }
 
 void
@@ -116,8 +224,10 @@ libver_result_free(
         return;
     }
 
-    result->num_schemes =   0;
-    result->schemes     =   NULL;
+    free(result->schemes);
+
+    result->num_schemes = 0;
+    result->schemes = NULL;
 }
 
 

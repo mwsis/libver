@@ -28,15 +28,15 @@ Status: planning checklist derived from the initial design conversations.
 * [x] **1.1** Wire unit/component test targets (smoke first) — **test.unit.libver.find** via **CTest**;
 * [x] **1.2** Wire **cli/libver** and **frontends/cargo-libver** stubs (**CLASP** + **sistools-common-c**; **cstring** / **collect-c** linked; **Diagnosticism** always; **Pantheios** locate-only; **libCLImate** later);
 
-Language-extraction scratches (**test.scratch.python2**, **python3**, **rust**, **versions**, **zig**) and **REQUISITES.md** landed as scaffold prep. They are not Phase 2 backends: core `libver_find` remains a stub.
+Language-extraction scratches (**test.scratch.python2**, **python3**, **rust**, **versions**, **zig**) and **REQUISITES.md** landed as scaffold prep. They are not Phase 2 backends.
 
 
 ## Phase 2 — First backends
 
-* [ ] Fixtures: minimal Cargo project; minimal Zig zon project;
-* [ ] Cargo.toml version extraction;
-* [ ] `build.zig.zon` version extraction;
-* [ ] Detection + precedence tests (including no-match);
+* [x] Fixtures: minimal Cargo project; minimal Zig zon project;
+* [x] Cargo.toml version extraction;
+* [x] `build.zig.zon` version extraction;
+* [x] Detection + precedence tests (including no-match);
 
 
 ## Phase 3 — Public CLI surfaces

@@ -39,7 +39,7 @@ Always:
 * [**Diagnosticism**](https://github.com/synesissoftware/Diagnosticism) — diagnostics helpers (e.g. version-string formatting);
 * [**STLSoft**](https://github.com/synesissoftware/STLSoft-1.11) — discrimination / compatibility / utility headers (also pulled in by several Synesis dependents);
 * [**recls**](https://github.com/synesissoftware/recls) — recursive filesystem search (scratch **test.scratch.python2**; expected again in core discovery);
-* [**tomlc17**](https://github.com/cktan/tomlc17) — TOML parser for **Cargo.toml** probing (scratch **test.scratch.rust**, and forthcoming Cargo backend);
+* [**tomlc17**](https://github.com/cktan/tomlc17) — TOML parser for **Cargo.toml** probing (core Cargo backend; scratch **test.scratch.rust**);
 
 When building the shared CLI and/or ecosystem frontends (`BUILD_CLI` / `BUILD_FRONTENDS`):
 

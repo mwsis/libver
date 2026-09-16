@@ -1,6 +1,16 @@
 # **libver** Changes <!-- omit in toc -->
 
 
+## 0.0.2 - 16th September 2026
+
+* `libver_find` probes **Cargo.toml** then **build.zig.zon** in the given directory (not recursive);
+* Cargo backend reads `[package].version` via **tomlc17**;
+* Zig backend reads top-level `.version` from **build.zig.zon** with a small ZON lexical scan (not TOML);
+* Scheme result now has `patch` (was stub `path`) plus `source` path; pragmatic `LIBVER_RC_*` status codes;
+* Fixtures under **core/test/fixtures/**; component tests **test.component.libver.find** (Cargo-only, Zig-only, Cargo-over-Zig, no-match, missing dir);
+* Unit smoke **test.unit.libver.find** no longer expects a stub empty find;
+
+
 ## 0.0.1 - 16th September 2026
 
 * Added unit smoke **test.unit.libver.find** (stub `libver_find` / init / null-result) registered with **CTest**;
