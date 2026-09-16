@@ -5,6 +5,7 @@
 #
 # ######################################################################## #
 
+
 define_cli_program(frontend.cargo-libver "${CMAKE_SOURCE_DIR}/cli/common/entry.c" "cargo-libver")
 
 target_compile_definitions(frontend.cargo-libver
@@ -20,6 +21,14 @@ if(BUILD_TESTING)
 		COMMAND frontend.cargo-libver "${CMAKE_SOURCE_DIR}/core/test/fixtures/cargo-only"
 	)
 	set_tests_properties(frontend.cargo-libver.cargo-only PROPERTIES
+		PASS_REGULAR_EXPRESSION "scheme:  cargo[\r\n]+version: 1\\.2\\.3"
+	)
+
+	add_test(
+		NAME frontend.cargo-libver.subcommand
+		COMMAND frontend.cargo-libver libver "${CMAKE_SOURCE_DIR}/core/test/fixtures/cargo-only"
+	)
+	set_tests_properties(frontend.cargo-libver.subcommand PROPERTIES
 		PASS_REGULAR_EXPRESSION "scheme:  cargo[\r\n]+version: 1\\.2\\.3"
 	)
 

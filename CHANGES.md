@@ -11,7 +11,7 @@
 * Unit smoke **test.unit.libver.find** no longer expects a stub empty find;
 * CLI **CLASP** table uses **specifications** (not obsolete **aliases**);
 * **libver** CLI calls `libver_find` (all schemes; omitted directory is the process cwd);
-* **cargo-libver** shares that entry but probes **Cargo.toml** only;
+* **cargo-libver** shares that entry but probes **Cargo.toml** only (skips Cargo's injected `libver` token);
 * CLI prints `scheme` / `version` / `source`; process status follows `LIBVER_RC_*` (usage errors are 1);
 
 

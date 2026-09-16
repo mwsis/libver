@@ -74,29 +74,6 @@ $ ./_build/frontends/cargo-libver/cargo-libver --version
 ```
 
 
-## Running tests
-
-Configure and build (default build dir **_build/**):
-
-```bash
-$ ./prepare_cmake.sh -m
-```
-
-Then either:
-
-```bash
-$ ./ctest_cmake.sh            # CTest-registered tests
-$ ./run_all_unit_tests.sh     # discovers test.unit.* / test.component.* binaries
-$ ./run_all_scratch_tests.sh  # discovers test.scratch.* / test.performance.* binaries
-```
-
-Useful flags:
-
-* `--no-make` / `-M` — do not rebuild before running;
-* `--list-only` / `-l` — list matching programs only;
-* `--unit-only` / `--component-only` — filter (**run_all_unit_tests.sh**);
-
-
 ## Running the CLIs
 
 Omitted `<directory>` is the process current working directory (resolved,
@@ -134,10 +111,34 @@ source:  core/test/fixtures/cargo-only/Cargo.toml
 $ PATH="$PWD/_build/frontends/cargo-libver:$PATH" cargo libver
 ```
 
-`cargo libver` needs a Cargo tree as cwd (or pass `<directory>` to the
-standalone binary). It does not probe **build.zig.zon**. If `cargo libver`
-is not picked up, use the standalone **cargo-libver** path above.
+Cargo invokes **cargo-libver** with the subcommand name `libver` as a
+leading argument; the frontend skips that token. `cargo libver` needs a
+Cargo tree as cwd (or pass `<directory>` after the subcommand). It does
+not probe **build.zig.zon**. If `cargo libver` is not picked up, use the
+standalone **cargo-libver** path above.
+
+
+## Running tests
+
+Configure and build (default build dir **_build/**):
+
+```bash
+$ ./prepare_cmake.sh -m
+```
+
+Then either:
+
+```bash
+$ ./ctest_cmake.sh            # CTest-registered tests
+$ ./run_all_unit_tests.sh     # discovers test.unit.* / test.component.* binaries
+$ ./run_all_scratch_tests.sh  # discovers test.scratch.* / test.performance.* binaries
+```
+
+Useful flags:
+
+* `--no-make` / `-M` — do not rebuild before running;
+* `--list-only` / `-l` — list matching programs only;
+* `--unit-only` / `--component-only` — filter (**run_all_unit_tests.sh**);
 
 
 <!-- ########################### end of file ########################### -->
-

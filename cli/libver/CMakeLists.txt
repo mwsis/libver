@@ -5,6 +5,7 @@
 #
 # ######################################################################## #
 
+
 define_cli_program(cli.libver "${CMAKE_SOURCE_DIR}/cli/common/entry.c" "libver")
 
 if(BUILD_TESTING)

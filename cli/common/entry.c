@@ -148,14 +148,59 @@ copy_slice_(
 
 static
 int
+slice_eq_cstr_(
+    clasp_slice_t   slice
+,   const char*     s
+)
+{
+    size_t const n = strlen(s);
+
+    if (n != slice.len)
+    {
+        return 0;
+    }
+
+    return 0 == memcmp(slice.ptr, s, n);
+}
+
+static
+size_t
+first_value_index_(
+    const clasp_arguments_t* args
+)
+{
+    /* Ecosystem frontends named `*-libver` may receive a leading
+     * `libver` token (e.g. Cargo: `cargo-libver libver [args...]`).
+     */
+    if (0 != args->numValues)
+    {
+        if (slice_eq_cstr_(args->values[0].value, "libver"))
+        {
+            size_t const n  =   strlen(TOOLNAME);
+            size_t const sn =   sizeof("-libver") - 1;
+
+            if (n >= sn && 0 == strcmp(&TOOLNAME[n - sn], "-libver"))
+            {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static
+int
 fill_cwd_(
     char*   buf
 ,   size_t  cap
 )
 {
 #ifdef _WIN32
+
     if (NULL == _getcwd(buf, (int)cap))
 #else /* ? _WIN32 */
+
     if (NULL == getcwd(buf, cap))
 #endif /* _WIN32 */
     {
@@ -173,21 +218,24 @@ resolve_dir_(
 ,   size_t                      cap
 )
 {
-    if (1 < args->numValues)
+    size_t const    first   =   first_value_index_(args);
+    size_t const    nvals   =   args->numValues - first;
+
+    if (1 < nvals)
     {
         fprintf(
             stderr
         ,   "%.*s: unexpected argument: '%.*s'\n"
         ,   SIS_DOTSTAR(args->programName)
-        ,   SIS_DOTSTAR(args->values[1].value)
+        ,   SIS_DOTSTAR(args->values[first + 1].value)
         );
 
         return -1;
     }
 
-    if (1 == args->numValues)
+    if (1 == nvals)
     {
-        if (0 == args->values[0].value.len)
+        if (0 == args->values[first].value.len)
         {
             fprintf(
                 stderr
@@ -198,7 +246,7 @@ resolve_dir_(
             return -1;
         }
 
-        if (0 != copy_slice_(buf, cap, args->values[0].value))
+        if (0 != copy_slice_(buf, cap, args->values[first].value))
         {
             fprintf(
                 stderr
@@ -236,26 +284,36 @@ rc_message_(
     switch (rc)
     {
     case LIBVER_RC_NO_MATCH:
+
         if (0 == strcmp(LIBVER_CLI_SCHEMES, LIBVER_SCHEME_CARGO))
         {
             return "no Cargo.toml version";
         }
+
         return "no recognised project version";
     case LIBVER_RC_DIR_NOT_FOUND:
+
         return "directory not found";
     case LIBVER_RC_DIR_NOT_READABLE:
+
         return "directory not readable";
     case LIBVER_RC_PARSE:
+
         return "failed to parse project version marker";
     case LIBVER_RC_NO_VERSION:
+
         return "project marker has no usable version";
     case LIBVER_RC_NO_MEMORY:
+
         return "out of memory";
     case LIBVER_RC_IO:
+
         return "I/O failure reading project version marker";
     case LIBVER_RC_INVALID:
+
         return "invalid argument";
     default:
+
         return "version discovery failed";
     }
 }
@@ -297,7 +355,7 @@ run(
 ,   clasp_specification_t const*    specifications
 )
 {
-    const clasp_argument_t* firstUnusedFlagOrOption;
+    clasp_argument_t const* firstUnusedFlagOrOption;
     int                     flags = 0;
     char                    dir[CLI_DIR_MAX];
     libver_result_t         result;
