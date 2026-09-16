@@ -4,7 +4,7 @@
  * Purpose: Shared CLASP entry stub for libver CLI frontends.
  *
  * Created: 10th August 2026
- * Updated: 10th August 2026
+ * Updated: 16th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -93,14 +93,14 @@
  * constants
  */
 
-static clasp_alias_t const Aliases[] =
+static clasp_specification_t const Specifications[] =
 {
     CLASP_GAP_SECTION("standard flags:"),
 
     CLASP_FLAG(NULL, "--help", "displays this help and terminates"),
     CLASP_FLAG(NULL, "--version", "displays version information and terminates"),
 
-    CLASP_ALIAS_ARRAY_TERMINATOR
+    CLASP_SPECIFICATION_ARRAY_TERMINATOR
 };
 
 
@@ -111,8 +111,8 @@ static clasp_alias_t const Aliases[] =
 static
 int
 run(
-    clasp_arguments_t const*    args
-,   clasp_alias_t const*        aliases
+    clasp_arguments_t const*        args
+,   clasp_specification_t const*    specifications
 )
 {
     clasp_argument_t const* firstUnusedFlagOrOption;
@@ -126,7 +126,7 @@ run(
     {
         stcc_show_help(
             args
-        ,   aliases
+        ,   specifications
         ,   stdout
         ,   TOOLNAME
         ,   SUMMARY
@@ -156,7 +156,7 @@ run(
         return EXIT_SUCCESS;
     }
 
-    clasp_checkAllFlags(args, aliases, &flags);
+    clasp_checkAllFlags(args, specifications, &flags);
 
     if (0 != clasp_reportUnusedFlagsAndOptions(args, &firstUnusedFlagOrOption, 0))
     {
@@ -186,18 +186,18 @@ run(
 
 int main(int argc, char** argv)
 {
-    stlsoft_C_string_slice_m_t const    programName = platformstl_C_get_executable_name_from_path(argv[0]);
-    unsigned                            flags       = 0;
-    clasp_alias_t const*                aliases     = Aliases;
-    clasp_diagnostic_context_t const*   ctxt        = NULL;
-    clasp_arguments_t const*            args        = NULL;
+    stlsoft_C_string_slice_m_t const    programName     = platformstl_C_get_executable_name_from_path(argv[0]);
+    unsigned                            flags           = 0;
+    clasp_specification_t const*        specifications  = Specifications;
+    clasp_diagnostic_context_t const*   ctxt            = NULL;
+    clasp_arguments_t const*            args            = NULL;
     int                                 r;
 
     r = clasp_parseArguments(
             flags
         ,   argc
         ,   argv
-        ,   aliases
+        ,   specifications
         ,   ctxt
         ,   &args
         );
@@ -215,7 +215,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        int const xc = run(args, aliases);
+        int const xc = run(args, specifications);
 
         clasp_releaseArguments(args);
 

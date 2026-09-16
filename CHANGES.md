@@ -9,6 +9,7 @@
 * Scheme result now has `patch` (was stub `path`) plus `source` path; pragmatic `LIBVER_RC_*` status codes;
 * Fixtures under **core/test/fixtures/**; component tests **test.component.libver.find** (Cargo-only, Zig-only, Cargo-over-Zig, no-match, missing dir);
 * Unit smoke **test.unit.libver.find** no longer expects a stub empty find;
+* CLI **CLASP** table uses **specifications** (not obsolete **aliases**);
 
 
 ## 0.0.1 - 16th September 2026
