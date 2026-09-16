@@ -94,6 +94,9 @@ static void TEST_libver_find_ZIG_ONLY(void);
 static void TEST_libver_find_CARGO_AND_ZIG_CARGO_WINS(void);
 static void TEST_libver_find_CARGO_AND_ZIG_FILTER_ZIG(void);
 static void TEST_libver_find_ZIG_LEXICAL(void);
+static void TEST_libver_find_CARGO_PRERELEASE(void);
+static void TEST_libver_find_ZIG_PRERELEASE_AND_BUILD(void);
+static void TEST_libver_find_ZIG_BUILD_METADATA(void);
 static void TEST_libver_find_NO_MATCH(void);
 static void TEST_libver_find_DIR_NOT_FOUND(void);
 static void TEST_libver_find_CARGO_FILTER_ON_ZIG_ONLY(void);
@@ -149,8 +152,19 @@ assert_scheme_(
     XTESTS_TEST_INTEGER_EQUAL(major, result->schemes[0].major);
     XTESTS_TEST_INTEGER_EQUAL(minor, result->schemes[0].minor);
     XTESTS_TEST_INTEGER_EQUAL(patch, result->schemes[0].patch);
-    XTESTS_TEST_INTEGER_EQUAL(0, result->schemes[0].alphabeta);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("", result->schemes[0].prerelease);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("", result->schemes[0].build_metadata);
+    XTESTS_TEST_INTEGER_EQUAL(0xFF, result->schemes[0].alphabeta);
     XTESTS_TEST_INTEGER_EQUAL(0, result->schemes[0].build);
+}
+
+static void
+expect_no_warnings_(
+    libver_result_t const* result
+)
+{
+    XTESTS_TEST_INTEGER_EQUAL(0, (int)result->num_warnings);
+    XTESTS_TEST_POINTER_EQUAL(NULL, result->warnings);
 }
 
 
@@ -172,6 +186,9 @@ int main(int argc, char* argv[])
         XTESTS_RUN_CASE(TEST_libver_find_CARGO_AND_ZIG_CARGO_WINS);
         XTESTS_RUN_CASE(TEST_libver_find_CARGO_AND_ZIG_FILTER_ZIG);
         XTESTS_RUN_CASE(TEST_libver_find_ZIG_LEXICAL);
+        XTESTS_RUN_CASE(TEST_libver_find_CARGO_PRERELEASE);
+        XTESTS_RUN_CASE(TEST_libver_find_ZIG_PRERELEASE_AND_BUILD);
+        XTESTS_RUN_CASE(TEST_libver_find_ZIG_BUILD_METADATA);
         XTESTS_RUN_CASE(TEST_libver_find_NO_MATCH);
         XTESTS_RUN_CASE(TEST_libver_find_DIR_NOT_FOUND);
         XTESTS_RUN_CASE(TEST_libver_find_CARGO_FILTER_ON_ZIG_ONLY);
@@ -208,6 +225,7 @@ static void TEST_libver_find_CARGO_ONLY(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
     assert_scheme_(&result, LIBVER_SCHEME_CARGO, "1.2.3", 1, 2, 3);
     expect_source_(dir, "Cargo.toml", result.schemes[0].source);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     XTESTS_TEST_INTEGER_EQUAL(0, (int)result.num_schemes);
@@ -232,6 +250,7 @@ static void TEST_libver_find_ZIG_ONLY(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
     assert_scheme_(&result, LIBVER_SCHEME_ZIG, "0.4.5", 0, 4, 5);
     expect_source_(dir, "build.zig.zon", result.schemes[0].source);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();
@@ -253,6 +272,16 @@ static void TEST_libver_find_CARGO_AND_ZIG_CARGO_WINS(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
     assert_scheme_(&result, LIBVER_SCHEME_CARGO, "3.1.4", 3, 1, 4);
     expect_source_(dir, "Cargo.toml", result.schemes[0].source);
+    XTESTS_REQUIRE(XTESTS_TEST_INTEGER_EQUAL(1, (int)result.num_warnings));
+    XTESTS_REQUIRE(XTESTS_TEST_POINTER_NOT_EQUAL(NULL, result.warnings));
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL(
+        LIBVER_WARNING_OTHER_ECOSYSTEM
+    ,   result.warnings[0].kind
+    );
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL(LIBVER_SCHEME_ZIG, result.warnings[0].scheme);
+    expect_source_(dir, "build.zig.zon", result.warnings[0].source);
+    XTESTS_TEST_BOOLEAN_TRUE(NULL != strstr(result.warnings[0].message, "zig"));
+    XTESTS_TEST_BOOLEAN_TRUE(NULL != strstr(result.warnings[0].message, "cargo"));
 
     libver_result_free(&result);
     libver_uninit();
@@ -274,6 +303,7 @@ static void TEST_libver_find_CARGO_AND_ZIG_FILTER_ZIG(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
     assert_scheme_(&result, LIBVER_SCHEME_ZIG, "9.8.7", 9, 8, 7);
     expect_source_(dir, "build.zig.zon", result.schemes[0].source);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();
@@ -295,6 +325,100 @@ static void TEST_libver_find_ZIG_LEXICAL(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
     assert_scheme_(&result, LIBVER_SCHEME_ZIG, "2.0.1", 2, 0, 1);
     expect_source_(dir, "build.zig.zon", result.schemes[0].source);
+    expect_no_warnings_(&result);
+
+    libver_result_free(&result);
+    libver_uninit();
+}
+
+static void TEST_libver_find_CARGO_PRERELEASE(void)
+{
+    char            dir[4096];
+    libver_result_t result;
+    int             r;
+
+    fixture_dir_(dir, sizeof(dir), "cargo-prerelease");
+    memset(&result, 0, sizeof(result));
+
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
+
+    r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
+
+    XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
+    XTESTS_REQUIRE(XTESTS_TEST_INTEGER_EQUAL(1, (int)result.num_schemes));
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL(LIBVER_SCHEME_CARGO, result.schemes[0].scheme);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("0.1.0-beta.2", result.schemes[0].version);
+    XTESTS_TEST_INTEGER_EQUAL(0, result.schemes[0].major);
+    XTESTS_TEST_INTEGER_EQUAL(1, result.schemes[0].minor);
+    XTESTS_TEST_INTEGER_EQUAL(0, result.schemes[0].patch);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("beta.2", result.schemes[0].prerelease);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("", result.schemes[0].build_metadata);
+    XTESTS_TEST_INTEGER_EQUAL(0x82, result.schemes[0].alphabeta);
+    XTESTS_TEST_INTEGER_EQUAL(0, result.schemes[0].build);
+    expect_source_(dir, "Cargo.toml", result.schemes[0].source);
+    expect_no_warnings_(&result);
+
+    libver_result_free(&result);
+    libver_uninit();
+}
+
+static void TEST_libver_find_ZIG_PRERELEASE_AND_BUILD(void)
+{
+    char            dir[4096];
+    libver_result_t result;
+    int             r;
+
+    fixture_dir_(dir, sizeof(dir), "zig-prerelease");
+    memset(&result, 0, sizeof(result));
+
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
+
+    r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
+
+    XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
+    XTESTS_REQUIRE(XTESTS_TEST_INTEGER_EQUAL(1, (int)result.num_schemes));
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL(LIBVER_SCHEME_ZIG, result.schemes[0].scheme);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("1.2.3-alpha.1+9", result.schemes[0].version);
+    XTESTS_TEST_INTEGER_EQUAL(1, result.schemes[0].major);
+    XTESTS_TEST_INTEGER_EQUAL(2, result.schemes[0].minor);
+    XTESTS_TEST_INTEGER_EQUAL(3, result.schemes[0].patch);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("alpha.1", result.schemes[0].prerelease);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("9", result.schemes[0].build_metadata);
+    XTESTS_TEST_INTEGER_EQUAL(0x41, result.schemes[0].alphabeta);
+    XTESTS_TEST_INTEGER_EQUAL(9, result.schemes[0].build);
+    expect_source_(dir, "build.zig.zon", result.schemes[0].source);
+    expect_no_warnings_(&result);
+
+    libver_result_free(&result);
+    libver_uninit();
+}
+
+static void TEST_libver_find_ZIG_BUILD_METADATA(void)
+{
+    char            dir[4096];
+    libver_result_t result;
+    int             r;
+
+    fixture_dir_(dir, sizeof(dir), "zig-build");
+    memset(&result, 0, sizeof(result));
+
+    XTESTS_TEST_INTEGER_EQUAL(0, libver_init(NULL));
+
+    r = libver_find(dir, 0, LIBVER_SCHEMES_ALL, &result);
+
+    XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_SUCCESS, r);
+    XTESTS_REQUIRE(XTESTS_TEST_INTEGER_EQUAL(1, (int)result.num_schemes));
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL(LIBVER_SCHEME_ZIG, result.schemes[0].scheme);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("4.0.0+gdeadbeef", result.schemes[0].version);
+    XTESTS_TEST_INTEGER_EQUAL(4, result.schemes[0].major);
+    XTESTS_TEST_INTEGER_EQUAL(0, result.schemes[0].minor);
+    XTESTS_TEST_INTEGER_EQUAL(0, result.schemes[0].patch);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("", result.schemes[0].prerelease);
+    XTESTS_TEST_MULTIBYTE_STRING_EQUAL("gdeadbeef", result.schemes[0].build_metadata);
+    XTESTS_TEST_INTEGER_EQUAL(0xFF, result.schemes[0].alphabeta);
+    XTESTS_TEST_INTEGER_EQUAL(0, result.schemes[0].build);
+    expect_source_(dir, "build.zig.zon", result.schemes[0].source);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();
@@ -316,6 +440,7 @@ static void TEST_libver_find_NO_MATCH(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_NO_MATCH, r);
     XTESTS_TEST_INTEGER_EQUAL(0, (int)result.num_schemes);
     XTESTS_TEST_POINTER_EQUAL(NULL, result.schemes);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();
@@ -340,6 +465,7 @@ static void TEST_libver_find_DIR_NOT_FOUND(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_DIR_NOT_FOUND, r);
     XTESTS_TEST_INTEGER_EQUAL(0, (int)result.num_schemes);
     XTESTS_TEST_POINTER_EQUAL(NULL, result.schemes);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();
@@ -361,6 +487,7 @@ static void TEST_libver_find_CARGO_FILTER_ON_ZIG_ONLY(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_NO_MATCH, r);
     XTESTS_TEST_INTEGER_EQUAL(0, (int)result.num_schemes);
     XTESTS_TEST_POINTER_EQUAL(NULL, result.schemes);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();
@@ -412,6 +539,7 @@ static void TEST_libver_find_UNREADABLE_DIR(void)
     XTESTS_TEST_INTEGER_EQUAL(LIBVER_RC_DIR_NOT_READABLE, r);
     XTESTS_TEST_INTEGER_EQUAL(0, (int)result.num_schemes);
     XTESTS_TEST_POINTER_EQUAL(NULL, result.schemes);
+    expect_no_warnings_(&result);
 
     libver_result_free(&result);
     libver_uninit();

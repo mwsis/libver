@@ -122,6 +122,142 @@ parse_uint_(
 }
 
 static int
+map_synesis_alphabeta_(
+    char const* pre
+,   size_t      len
+)
+{
+    int         base;
+    int         n = 1;
+    char const* p;
+    char const* end;
+
+    if (0 == len)
+    {
+        return 0xFF;
+    }
+
+    if (len >= 5 && 0 == memcmp(pre, "alpha", 5))
+    {
+        base = 0x41;
+        p = pre + 5;
+        end = pre + len;
+    }
+    else if (len >= 4 && 0 == memcmp(pre, "beta", 4))
+    {
+        base = 0x81;
+        p = pre + 4;
+        end = pre + len;
+    }
+    else if (len >= 2 && 0 == memcmp(pre, "rc", 2))
+    {
+        base = 0xC1;
+        p = pre + 2;
+        end = pre + len;
+    }
+    else
+    {
+        return 0;
+    }
+
+    if (p != end)
+    {
+        long v = 0;
+
+        if ('.' == *p)
+        {
+            ++p;
+        }
+
+        if (p == end || !isdigit((unsigned char)*p))
+        {
+            return 0;
+        }
+
+        while (p != end && isdigit((unsigned char)*p))
+        {
+            v = v * 10 + (*p - '0');
+
+            if (v > 63)
+            {
+                return 0;
+            }
+
+            ++p;
+        }
+
+        if (p != end || v < 1)
+        {
+            return 0;
+        }
+
+        n = (int)v;
+    }
+
+    if (0xC1 == base)
+    {
+        if (n > 62)
+        {
+            return 0;
+        }
+    }
+    else if (n > 63)
+    {
+        return 0;
+    }
+
+    return base + (n - 1);
+}
+
+static int
+map_build_int_(
+    char const* s
+,   size_t      len
+)
+{
+    char const* p = s;
+    char const* end = s + len;
+    long        v = 0;
+
+    if (0 == len)
+    {
+        return 0;
+    }
+
+    while (p != end)
+    {
+        if (!isdigit((unsigned char)*p))
+        {
+            return 0;
+        }
+
+        v = v * 10 + (*p - '0');
+
+        if (v > INT_MAX)
+        {
+            return 0;
+        }
+
+        ++p;
+    }
+
+    return (int)v;
+}
+
+static char*
+copy_str_into_(
+    char*       dest
+,   char const* src
+,   size_t      len
+)
+{
+    memcpy(dest, src, len);
+    dest[len] = '\0';
+
+    return dest;
+}
+
+static int
 skip_prerelease_or_build_(
     const char**    pp
 ,   int             plus_ok
@@ -359,13 +495,21 @@ libver_internal_read_file(
 
 int
 libver_internal_parse_semver(
-    const char* s
-,   int*        major
-,   int*        minor
-,   int*        patch
+    const char*     s
+,   int*            major
+,   int*            minor
+,   int*            patch
+,   char const**    prerelease
+,   size_t*         prerelease_len
+,   char const**    build_metadata
+,   size_t*         build_metadata_len
 )
 {
-    const char* p;
+    char const* p;
+    char const* pre_start = NULL;
+    size_t      pre_len = 0;
+    char const* meta_start = NULL;
+    size_t      meta_len = 0;
 
     assert(NULL != s);
     assert(NULL != major);
@@ -406,8 +550,16 @@ libver_internal_parse_semver(
     if ('-' == *p)
     {
         ++p;
+        pre_start = p;
 
         if (0 != skip_prerelease_or_build_(&p, 1))
+        {
+            return 1;
+        }
+
+        pre_len = (size_t)(p - pre_start);
+
+        if (0 == pre_len)
         {
             return 1;
         }
@@ -416,14 +568,47 @@ libver_internal_parse_semver(
     if ('+' == *p)
     {
         ++p;
+        meta_start = p;
 
         if (0 != skip_prerelease_or_build_(&p, 0))
         {
             return 1;
         }
+
+        meta_len = (size_t)(p - meta_start);
+
+        if (0 == meta_len)
+        {
+            return 1;
+        }
     }
 
-    return '\0' == *p ? 0 : 1;
+    if ('\0' != *p)
+    {
+        return 1;
+    }
+
+    if (NULL != prerelease)
+    {
+        *prerelease = pre_start;
+    }
+
+    if (NULL != prerelease_len)
+    {
+        *prerelease_len = pre_len;
+    }
+
+    if (NULL != build_metadata)
+    {
+        *build_metadata = meta_start;
+    }
+
+    if (NULL != build_metadata_len)
+    {
+        *build_metadata_len = meta_len;
+    }
+
+    return 0;
 }
 
 int
@@ -434,8 +619,12 @@ libver_internal_hit_set_version(
 ,   const char*             version
 )
 {
-    size_t source_len;
-    size_t version_len;
+    size_t      source_len;
+    size_t      version_len;
+    char const* pre = NULL;
+    size_t      pre_len = 0;
+    char const* meta = NULL;
+    size_t      meta_len = 0;
 
     assert(NULL != hit);
     assert(NULL != scheme);
@@ -457,31 +646,54 @@ libver_internal_hit_set_version(
             ,   &hit->major
             ,   &hit->minor
             ,   &hit->patch
+            ,   &pre
+            ,   &pre_len
+            ,   &meta
+            ,   &meta_len
             ))
     {
         return LIBVER_RC_NO_VERSION;
     }
 
+    if (pre_len >= LIBVER_INTERNAL_VERSION_MAX ||
+        meta_len >= LIBVER_INTERNAL_VERSION_MAX)
+    {
+        return LIBVER_RC_NO_VERSION;
+    }
+
     hit->scheme = scheme;
-    hit->alphabeta = 0;
-    hit->build = 0;
+    hit->alphabeta = map_synesis_alphabeta_(
+                        NULL != pre ? pre : ""
+                    ,   pre_len
+                    );
+    hit->build = map_build_int_(
+                    NULL != meta ? meta : ""
+                ,   meta_len
+                );
 
     memcpy(hit->source, source, source_len + 1);
     memcpy(hit->version, version, version_len + 1);
+    copy_str_into_(hit->prerelease, NULL != pre ? pre : "", pre_len);
+    copy_str_into_(hit->build_metadata, NULL != meta ? meta : "", meta_len);
 
     return LIBVER_RC_SUCCESS;
 }
 
 int
 libver_internal_result_set(
-    libver_result_t*                result
-,   libver_internal_hit_t const*    hit
+    libver_result_t*                    result
+,   libver_internal_hit_t const*        hit
+,   libver_internal_warning_t const*    warnings
+,   size_t                              num_warnings
 )
 {
     size_t                  scheme_len;
     size_t                  version_len;
     size_t                  source_len;
+    size_t                  pre_len;
+    size_t                  meta_len;
     size_t                  bytes;
+    size_t                  i;
     char*                   block;
     libver_scheme_result_t* sr;
     char*                   p;
@@ -489,12 +701,15 @@ libver_internal_result_set(
     assert(NULL != result);
     assert(NULL != hit);
     assert(NULL != hit->scheme);
+    assert(0 == num_warnings || NULL != warnings);
 
     scheme_len = strlen(hit->scheme);
     version_len = strlen(hit->version);
     source_len = strlen(hit->source);
+    pre_len = strlen(hit->prerelease);
+    meta_len = strlen(hit->build_metadata);
 
-    bytes = sizeof(*sr) + scheme_len + 1 + version_len + 1 + source_len + 1;
+    bytes = sizeof(*sr) + scheme_len + 1 + version_len + 1 + source_len + 1 + pre_len + 1 + meta_len + 1;
     block = (char*)malloc(bytes);
 
     if (NULL == block)
@@ -505,16 +720,15 @@ libver_internal_result_set(
     sr = (libver_scheme_result_t*)(void*)block;
     p = (char*)(sr + 1);
 
-    memcpy(p, hit->scheme, scheme_len + 1);
-    sr->scheme = p;
+    sr->scheme = copy_str_into_(p, hit->scheme, scheme_len);
     p += scheme_len + 1;
-
-    memcpy(p, hit->version, version_len + 1);
-    sr->version = p;
+    sr->version = copy_str_into_(p, hit->version, version_len);
     p += version_len + 1;
-
-    memcpy(p, hit->source, source_len + 1);
-    sr->source = p;
+    sr->prerelease = copy_str_into_(p, hit->prerelease, pre_len);
+    p += pre_len + 1;
+    sr->build_metadata = copy_str_into_(p, hit->build_metadata, meta_len);
+    p += meta_len + 1;
+    sr->source = copy_str_into_(p, hit->source, source_len);
 
     sr->major = hit->major;
     sr->minor = hit->minor;
@@ -524,6 +738,60 @@ libver_internal_result_set(
 
     result->num_schemes = 1;
     result->schemes = sr;
+    result->num_warnings = 0;
+    result->warnings = NULL;
+
+    if (0 == num_warnings)
+    {
+        return LIBVER_RC_SUCCESS;
+    }
+
+    bytes = sizeof(libver_warning_t) * num_warnings;
+
+    for (i = 0; i < num_warnings; ++i)
+    {
+        bytes += strlen(warnings[i].kind) + 1;
+        bytes += strlen(warnings[i].scheme) + 1;
+        bytes += strlen(warnings[i].source) + 1;
+        bytes += strlen(warnings[i].message) + 1;
+    }
+
+    block = (char*)malloc(bytes);
+
+    if (NULL == block)
+    {
+        free(sr);
+        result->num_schemes = 0;
+        result->schemes = NULL;
+
+        return LIBVER_RC_NO_MEMORY;
+    }
+
+    {
+        libver_warning_t*   ws = (libver_warning_t*)(void*)block;
+
+        p = (char*)(ws + num_warnings);
+
+        for (i = 0; i < num_warnings; ++i)
+        {
+            size_t const kind_len = strlen(warnings[i].kind);
+            size_t const wscheme_len = strlen(warnings[i].scheme);
+            size_t const wsource_len = strlen(warnings[i].source);
+            size_t const msg_len = strlen(warnings[i].message);
+
+            ws[i].kind = copy_str_into_(p, warnings[i].kind, kind_len);
+            p += kind_len + 1;
+            ws[i].scheme = copy_str_into_(p, warnings[i].scheme, wscheme_len);
+            p += wscheme_len + 1;
+            ws[i].source = copy_str_into_(p, warnings[i].source, wsource_len);
+            p += wsource_len + 1;
+            ws[i].message = copy_str_into_(p, warnings[i].message, msg_len);
+            p += msg_len + 1;
+        }
+
+        result->num_warnings = num_warnings;
+        result->warnings = ws;
+    }
 
     return LIBVER_RC_SUCCESS;
 }

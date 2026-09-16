@@ -60,8 +60,10 @@
  * constants
  */
 
-#define LIBVER_INTERNAL_PATH_MAX        (4096)
-#define LIBVER_INTERNAL_VERSION_MAX     (128)
+#define LIBVER_INTERNAL_PATH_MAX                            (4096)
+#define LIBVER_INTERNAL_VERSION_MAX                         (128)
+#define LIBVER_INTERNAL_MESSAGE_MAX                         (LIBVER_INTERNAL_PATH_MAX + 128)
+#define LIBVER_INTERNAL_MAX_SCHEMES                         (8)
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -73,6 +75,8 @@ struct libver_internal_hit_t
     const char* scheme;
     char        source[LIBVER_INTERNAL_PATH_MAX];
     char        version[LIBVER_INTERNAL_VERSION_MAX];
+    char        prerelease[LIBVER_INTERNAL_VERSION_MAX];
+    char        build_metadata[LIBVER_INTERNAL_VERSION_MAX];
     int         major;
     int         minor;
     int         patch;
@@ -81,6 +85,17 @@ struct libver_internal_hit_t
 };
 #ifndef __cplusplus
 typedef struct libver_internal_hit_t                        libver_internal_hit_t;
+#endif /* !__cplusplus */
+
+struct libver_internal_warning_t
+{
+    char const* kind;
+    char const* scheme;
+    char        source[LIBVER_INTERNAL_PATH_MAX];
+    char        message[LIBVER_INTERNAL_MESSAGE_MAX];
+};
+#ifndef __cplusplus
+typedef struct libver_internal_warning_t                    libver_internal_warning_t;
 #endif /* !__cplusplus */
 
 
@@ -142,14 +157,20 @@ libver_internal_read_file(
 
 /** Parse a SemVer core `MAJOR.MINOR.PATCH` with optional prerelease/build.
  *
+ * Slice outputs (into @a s) may be NULL. Lengths are 0 when absent.
+ *
  * @return 0 on success; non-zero if @a s is not a usable SemVer string.
  */
 int
 libver_internal_parse_semver(
-    const char* s
-,   int*        major
-,   int*        minor
-,   int*        patch
+    const char*     s
+,   int*            major
+,   int*            minor
+,   int*            patch
+,   char const**    prerelease
+,   size_t*         prerelease_len
+,   char const**    build_metadata
+,   size_t*         build_metadata_len
 );
 
 /** Copy @a scheme and @a version into @a hit and parse SemVer fields.
@@ -164,14 +185,16 @@ libver_internal_hit_set_version(
 ,   const char*             version
 );
 
-/** Populate @a result from a single @a hit (owns allocated storage).
+/** Populate @a result from a single @a hit and optional warnings.
  *
  * @return LIBVER_RC_SUCCESS or LIBVER_RC_NO_MEMORY.
  */
 int
 libver_internal_result_set(
-    libver_result_t*                result
-,   libver_internal_hit_t const*    hit
+    libver_result_t*                    result
+,   libver_internal_hit_t const*        hit
+,   libver_internal_warning_t const*    warnings
+,   size_t                              num_warnings
 );
 
 

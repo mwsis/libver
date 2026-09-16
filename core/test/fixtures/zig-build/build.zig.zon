@@ -1,0 +1,7 @@
+.{
+    .name = .libver_fixture_zig_build,
+    .version = "4.0.0+gdeadbeef",
+    .paths = .{
+        "",
+    },
+}

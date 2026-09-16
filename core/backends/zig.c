@@ -5,7 +5,7 @@
  *          TOML) via a small lexical scan.
  *
  * Created: 16th September 2026
- * Updated: 16th September 2026
+ * Updated: 17th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -247,44 +247,44 @@ zon_take_string_(
 
         switch (c)
         {
-            case '"':
-            case '\\':
-            case '\'':
+        case '"':
+        case '\\':
+        case '\'':
 
-                if (0 != zon_emit_(out, out_cap, &n, c))
-                {
-                    return 1;
-                }
-                break;
-            case 'n':
+            if (0 != zon_emit_(out, out_cap, &n, c))
+            {
+                return 1;
+            }
+            break;
+        case 'n':
 
-                if (0 != zon_emit_(out, out_cap, &n, '\n'))
-                {
-                    return 1;
-                }
-                break;
-            case 'r':
+            if (0 != zon_emit_(out, out_cap, &n, '\n'))
+            {
+                return 1;
+            }
+            break;
+        case 'r':
 
-                if (0 != zon_emit_(out, out_cap, &n, '\r'))
-                {
-                    return 1;
-                }
-                break;
-            case 't':
+            if (0 != zon_emit_(out, out_cap, &n, '\r'))
+            {
+                return 1;
+            }
+            break;
+        case 't':
 
-                if (0 != zon_emit_(out, out_cap, &n, '\t'))
-                {
-                    return 1;
-                }
-                break;
-            case '0':
+            if (0 != zon_emit_(out, out_cap, &n, '\t'))
+            {
+                return 1;
+            }
+            break;
+        case '0':
 
-                if (0 != zon_emit_(out, out_cap, &n, '\0'))
-                {
-                    return 1;
-                }
-                break;
-            case 'x':
+            if (0 != zon_emit_(out, out_cap, &n, '\0'))
+            {
+                return 1;
+            }
+            break;
+        case 'x':
             {
                 int hi;
                 int lo;
@@ -309,7 +309,7 @@ zon_take_string_(
                 }
                 break;
             }
-            case 'u':
+        case 'u':
             {
                 unsigned    cp = 0;
                 int         digits = 0;
@@ -354,9 +354,9 @@ zon_take_string_(
                 }
                 break;
             }
-            default:
+        default:
 
-                return 1;
+            return 1;
         }
     }
 

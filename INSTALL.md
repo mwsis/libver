@@ -16,6 +16,7 @@ novels.
 - [CMake](#cmake)
 	- [Dependencies](#dependencies)
 - [Running the CLIs](#running-the-clis)
+	- [Exit codes](#exit-codes)
 - [Running tests](#running-tests)
 
 
@@ -94,9 +95,37 @@ $ ./_build/cli/libver/libver core/test/fixtures/empty
 libver: no recognised project version: '.../empty'
 ```
 
-The last command exits **1** (`LIBVER_RC_NO_MATCH`). Other positive
-`LIBVER_RC_*` values are used as the process status; usage errors also
-exit **1**.
+The last command exits **1** (`LIBVER_RC_NO_MATCH`). Warnings do not change
+a successful exit (**0**).
+
+On a mixed Cargo+Zig tree the winner is still Cargo; **libver** also prints
+a warning on stderr (`other-ecosystem`). **cargo-libver** does not, because
+it selects Cargo only.
+
+`--json` writes the winner and a `warnings` array to stdout (pretty-printed
+JSON). Failures stay as human stderr.
+
+
+### Exit codes
+
+Process status follows `LIBVER_RC_*` from the C-API (see
+[docs/c-api.md](./docs/c-api.md)):
+
+| Exit | Source | Meaning |
+| ---: | --- | --- |
+| 0 | `LIBVER_RC_SUCCESS` | A version was found; warnings do not change this |
+| 1 | `LIBVER_RC_NO_MATCH` | No selected marker in the directory |
+| 1 | usage / `LIBVER_RC_INVALID` | Unrecognised flag, extra arguments, empty directory, `getcwd` failure, or invalid API argument |
+| 2 | `LIBVER_RC_DIR_NOT_FOUND` | Directory does not exist |
+| 3 | `LIBVER_RC_DIR_NOT_READABLE` | Directory is not usable |
+| 4 | `LIBVER_RC_PARSE` | Marker found but could not be parsed |
+| 5 | `LIBVER_RC_NO_VERSION` | Marker found but no usable version |
+| 6 | `LIBVER_RC_NO_MEMORY` | Allocation failed |
+| 7 | `LIBVER_RC_IO` | I/O failure reading a marker |
+
+Exit **1** is therefore overloaded (no-match vs usage). Positive
+`LIBVER_RC_*` values other than those listed are used as the process status
+unchanged.
 
 **cargo-libver** is the Cargo-subcommand name. Invoke it directly, or put
 its directory on `PATH` and run `cargo libver` (Cargo looks up

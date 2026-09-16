@@ -6,6 +6,7 @@
 # ######################################################################## #
 
 add_subdirectory(test.unit.libver.find)
+add_subdirectory(test.unit.libver.semver)
 
 
 # ############################## end of file ############################# #

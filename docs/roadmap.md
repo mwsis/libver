@@ -18,7 +18,7 @@ Status: planning checklist derived from the initial design conversations.
 
 * [x] Suite name **libver**;
 * [x] Record architecture, C-API sketch, detection precedence, and this roadmap under **docs/**;
-* [ ] Finalise status codes and warning/conflict representation in [c-api.md](./c-api.md);
+* [x] Finalise status codes and warning/conflict representation in [c-api.md](./c-api.md);
 
 
 ## Phase 1 — Scaffold (CMake only)
@@ -48,8 +48,8 @@ Language-extraction scratches (**test.scratch.python2**, **python3**, **rust**, 
 
 ## Phase 4 — Harden the result model
 
-* [ ] Warnings/conflicts in the C-API;
-* [ ] Document CLI exit codes and optional machine-readable output;
+* [x] Warnings/conflicts in the C-API;
+* [x] Document CLI exit codes and optional machine-readable output (`--json`);
 
 
 ## Phase 5 — Further language backends

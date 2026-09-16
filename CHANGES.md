@@ -1,6 +1,15 @@
 # **libver** Changes <!-- omit in toc -->
 
 
+## 0.0.3 - 17th September 2026
+
+* `libver_find` records structured `other-ecosystem` warnings when another selected marker is present beside the precedence winner;
+* Scheme results expose SemVer `prerelease` / `build_metadata` strings, plus Synesis `alphabeta` / integer `build` when they map;
+* **libver** / **cargo-libver** print warnings on stderr; `--json` writes scheme, version, source, SemVer fields, and warnings;
+* Documented CLI exit codes in **INSTALL.md**, **FAQ.md**, and **docs/c-api.md**;
+* Component coverage for **cargo-and-zig** warnings and `-pre` / `+build` fixtures; unit tests for SemVer parse mapping;
+
+
 ## 0.0.2 - 16th September 2026
 
 * `libver_find` probes **Cargo.toml** then **build.zig.zon** in the given directory (not recursive);

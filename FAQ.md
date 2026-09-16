@@ -10,6 +10,7 @@ Issues forum it will be used to create one.
 - [Q2: "What third-party dependencies do I need?"](#q2-what-third-party-dependencies-do-i-need)
 - [Q3: "Do the CLIs discover a project's version yet?"](#q3-do-the-clis-discover-a-projects-version-yet)
 - [Q4: "Where is the design documented?"](#q4-where-is-the-design-documented)
+- [Q5: "What do the CLI exit codes mean?"](#q5-what-do-the-cli-exit-codes-mean)
 
 
 # FAQs: <!-- omit in toc -->
@@ -38,13 +39,24 @@ and is not linked.
 Yes, for **Cargo.toml** and **build.zig.zon** in the given directory (not
 recursively). **libver** uses every known scheme (Cargo, then Zig);
 **cargo-libver** looks at **Cargo.toml** only. Omitted directory is cwd.
-See [INSTALL.md](./INSTALL.md#running-the-clis) for smoke commands.
+**libver** warns on stderr when another selected ecosystem is also present;
+`--json` writes a machine-readable object. See
+[INSTALL.md](./INSTALL.md#running-the-clis) for smoke commands.
 
 
 ## Q4: "Where is the design documented?"
 
 See [docs/README.md](./docs/README.md) for architecture, C-API,
 detection precedence, and roadmap.
+
+
+## Q5: "What do the CLI exit codes mean?"
+
+The process status is the `LIBVER_RC_*` value from `libver_find` when that
+value is ≥ 0. Success is **0** even if warnings were recorded. Usage errors
+and `LIBVER_RC_INVALID` (−1) are **1**, so exit 1 is both “no match” and
+“bad invocation”. The table is in
+[INSTALL.md](./INSTALL.md#exit-codes) and [docs/c-api.md](./docs/c-api.md).
 
 
 <!-- ########################### end of file ########################### -->

@@ -42,6 +42,22 @@ if(BUILD_TESTING)
 	set_tests_properties(cli.libver.zig-only PROPERTIES
 		PASS_REGULAR_EXPRESSION "scheme:  zig[\r\n]+version: 0\\.4\\.5"
 	)
+
+	add_test(
+		NAME cli.libver.cargo-and-zig-warning
+		COMMAND cli.libver "${CMAKE_SOURCE_DIR}/core/test/fixtures/cargo-and-zig"
+	)
+	set_tests_properties(cli.libver.cargo-and-zig-warning PROPERTIES
+		PASS_REGULAR_EXPRESSION "warning: other-ecosystem:"
+	)
+
+	add_test(
+		NAME cli.libver.json-cargo-only
+		COMMAND cli.libver --json "${CMAKE_SOURCE_DIR}/core/test/fixtures/cargo-only"
+	)
+	set_tests_properties(cli.libver.json-cargo-only PROPERTIES
+		PASS_REGULAR_EXPRESSION "\"scheme\": \"cargo\""
+	)
 endif(BUILD_TESTING)
 
 

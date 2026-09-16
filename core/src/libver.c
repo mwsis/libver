@@ -51,8 +51,32 @@
 #include "libver.internal.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+
+/* /////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+typedef struct scheme_desc_t
+{
+    char const* name;
+    char const* marker;
+    int         (*probe)(char const*, libver_internal_hit_t*);
+} scheme_desc_t;
+
+
+/* /////////////////////////////////////////////////////////////////////////
+ * constants
+ */
+
+static scheme_desc_t const k_schemes[] =
+{
+    { LIBVER_SCHEME_CARGO, "Cargo.toml", libver_backend_cargo_probe },
+    { LIBVER_SCHEME_ZIG, "build.zig.zon", libver_backend_zig_probe },
+};
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -61,8 +85,8 @@
 
 static int
 scheme_wanted_(
-    const char* schemes
-,   const char* name
+    char const* schemes
+,   char const* name
 )
 {
     assert(NULL != schemes);
@@ -77,55 +101,91 @@ scheme_wanted_(
 }
 
 static int
-commit_hit_(
-    libver_result_t*                result
-,   libver_internal_hit_t const*    hit
+marker_present_(
+    char const* dir
+,   char const* marker
+,   char*       path
+,   size_t      path_cap
 )
 {
-    int const rc = libver_internal_result_set(result, hit);
+    int const rc = libver_internal_regular_file_in_dir(
+                        dir
+                    ,   marker
+                    ,   path
+                    ,   path_cap
+                    );
 
-    if (LIBVER_RC_SUCCESS != rc)
+    return LIBVER_RC_SUCCESS == rc || LIBVER_RC_PARSE == rc;
+}
+
+static void
+fill_other_ecosystem_warning_(
+    libver_internal_warning_t*  w
+,   char const*                 other_scheme
+,   char const*                 other_source
+,   char const*                 winner_scheme
+)
+{
+    size_t source_len;
+
+    assert(NULL != w);
+    assert(NULL != other_scheme);
+    assert(NULL != other_source);
+    assert(NULL != winner_scheme);
+
+    source_len = strlen(other_source);
+
+    if (source_len >= LIBVER_INTERNAL_PATH_MAX)
     {
-        result->num_schemes = 0;
-        result->schemes = NULL;
+        source_len = LIBVER_INTERNAL_PATH_MAX - 1;
     }
 
-    return rc;
+    w->kind = LIBVER_WARNING_OTHER_ECOSYSTEM;
+    w->scheme = other_scheme;
+    memcpy(w->source, other_source, source_len);
+    w->source[source_len] = '\0';
+    snprintf(
+        w->message
+    ,   sizeof(w->message)
+    ,   "also found %s at '%s' (using %s by precedence)"
+    ,   other_scheme
+    ,   w->source
+    ,   winner_scheme
+    );
+}
+
+static void
+clear_result_(
+    libver_result_t* result
+)
+{
+    result->num_schemes = 0;
+    result->schemes = NULL;
+    result->num_warnings = 0;
+    result->warnings = NULL;
 }
 
 static int
-probe_scheme_(
-    const char*             dir
-,   const char*             schemes
-,   const char*             name
-,   int                     (*probe)(const char*, libver_internal_hit_t*)
-,   libver_result_t*        result
-,   int*                    done
+commit_hit_(
+    libver_result_t*                    result
+,   libver_internal_hit_t const*        hit
+,   libver_internal_warning_t const*    warnings
+,   size_t                              num_warnings
 )
 {
-    libver_internal_hit_t   hit;
-    int                     rc;
-
-    if (!scheme_wanted_(schemes, name))
-    {
-        return LIBVER_RC_SUCCESS;
-    }
-
-    rc = probe(dir, &hit);
-
-    if (LIBVER_RC_NO_MATCH == rc)
-    {
-        return LIBVER_RC_SUCCESS;
-    }
-
-    *done = 1;
+    int const rc = libver_internal_result_set(
+                        result
+                    ,   hit
+                    ,   warnings
+                    ,   num_warnings
+                    );
 
     if (LIBVER_RC_SUCCESS != rc)
     {
-        return rc;
+        clear_result_(result);
     }
 
-    return commit_hit_(result, &hit);
+    return rc;
 }
 
 
@@ -152,14 +212,18 @@ libver_uninit(void)
 
 int
 libver_find(
-    const char*         dir
+    char const*         dir
 ,   int                 flags
-,   const char*         schemes
+,   char const*         schemes
 ,   libver_result_t*    result
 )
 {
-    int rc;
-    int done = 0;
+    int                         rc;
+    size_t                      i;
+    int                         have_winner = 0;
+    libver_internal_hit_t       winner;
+    libver_internal_warning_t   warns[LIBVER_INTERNAL_MAX_SCHEMES];
+    size_t                      nwarns = 0;
 
     assert(NULL != dir);
     assert('\0' != *dir);
@@ -173,8 +237,7 @@ libver_find(
         return LIBVER_RC_INVALID;
     }
 
-    result->num_schemes = 0;
-    result->schemes = NULL;
+    clear_result_(result);
 
     rc = libver_internal_check_dir(dir);
 
@@ -183,35 +246,54 @@ libver_find(
         return rc;
     }
 
-    rc = probe_scheme_(
-            dir
-        ,   schemes
-        ,   LIBVER_SCHEME_CARGO
-        ,   libver_backend_cargo_probe
-        ,   result
-        ,   &done
-        );
-
-    if (done || LIBVER_RC_SUCCESS != rc)
+    for (i = 0; i < sizeof(k_schemes) / sizeof(k_schemes[0]); ++i)
     {
-        return rc;
+        scheme_desc_t const* spec = &k_schemes[i];
+
+        if (!scheme_wanted_(schemes, spec->name))
+        {
+            continue;
+        }
+
+        if (!have_winner)
+        {
+            rc = spec->probe(dir, &winner);
+
+            if (LIBVER_RC_NO_MATCH == rc)
+            {
+                continue;
+            }
+
+            if (LIBVER_RC_SUCCESS != rc)
+            {
+                return rc;
+            }
+
+            have_winner = 1;
+        }
+        else if (nwarns < LIBVER_INTERNAL_MAX_SCHEMES)
+        {
+            char path[LIBVER_INTERNAL_PATH_MAX];
+
+            if (marker_present_(dir, spec->marker, path, sizeof(path)))
+            {
+                fill_other_ecosystem_warning_(
+                    &warns[nwarns]
+                ,   spec->name
+                ,   path
+                ,   winner.scheme
+                );
+                ++nwarns;
+            }
+        }
     }
 
-    rc = probe_scheme_(
-            dir
-        ,   schemes
-        ,   LIBVER_SCHEME_ZIG
-        ,   libver_backend_zig_probe
-        ,   result
-        ,   &done
-        );
-
-    if (done || LIBVER_RC_SUCCESS != rc)
+    if (!have_winner)
     {
-        return rc;
+        return LIBVER_RC_NO_MATCH;
     }
 
-    return LIBVER_RC_NO_MATCH;
+    return commit_hit_(result, &winner, warns, nwarns);
 }
 
 void
@@ -225,9 +307,9 @@ libver_result_free(
     }
 
     free(result->schemes);
+    free(result->warnings);
 
-    result->num_schemes = 0;
-    result->schemes = NULL;
+    clear_result_(result);
 }
 
 

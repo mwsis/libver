@@ -4,7 +4,7 @@
  * Purpose: Shared CLASP entry for libver CLI frontends.
  *
  * Created: 10th August 2026
- * Updated: 16th September 2026
+ * Updated: 17th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -117,6 +117,7 @@ static clasp_specification_t const Specifications[] =
     CLASP_GAP_SECTION("standard flags:"),
 
     CLASP_FLAG(NULL, "--help", "displays this help and terminates"),
+    CLASP_FLAG(NULL, "--json", "write scheme, version, source, and warnings as JSON"),
     CLASP_FLAG(NULL, "--version", "displays version information and terminates"),
 
     CLASP_SPECIFICATION_ARRAY_TERMINATOR
@@ -340,12 +341,164 @@ exit_from_rc_(
 static
 void
 print_hit_(
-    const libver_scheme_result_t* hit
+    libver_scheme_result_t const* hit
 )
 {
     printf("scheme:  %s\n", hit->scheme);
     printf("version: %s\n", hit->version);
     printf("source:  %s\n", hit->source);
+}
+
+static
+void
+fputs_json_string_(
+    FILE*       fp
+,   char const* s
+)
+{
+    fputc('"', fp);
+
+    if (NULL == s)
+    {
+        fputc('"', fp);
+
+        return;
+    }
+
+    for (; '\0' != *s; ++s)
+    {
+        unsigned char const c = (unsigned char)*s;
+
+        switch (c)
+        {
+        case '"':
+
+            fputs("\\\"", fp);
+            break;
+        case '\\':
+
+            fputs("\\\\", fp);
+            break;
+        case '\n':
+
+            fputs("\\n", fp);
+            break;
+        case '\r':
+
+            fputs("\\r", fp);
+            break;
+        case '\t':
+
+            fputs("\\t", fp);
+            break;
+        default:
+
+            if (c < 0x20)
+            {
+                fprintf(fp, "\\u%04x", c);
+            }
+            else
+            {
+                fputc(c, fp);
+            }
+            break;
+        }
+    }
+
+    fputc('"', fp);
+}
+
+static
+void
+print_json_(
+    libver_result_t const* result
+)
+{
+    libver_scheme_result_t const*   hit = &result->schemes[0];
+    size_t                          i;
+
+    fputs("{\n  \"scheme\": ", stdout);
+    fputs_json_string_(stdout, hit->scheme);
+    fputs(",\n  \"version\": ", stdout);
+    fputs_json_string_(stdout, hit->version);
+    fprintf(
+        stdout
+    ,   ",\n  \"major\": %d,\n  \"minor\": %d,\n  \"patch\": %d"
+    ,   hit->major
+    ,   hit->minor
+    ,   hit->patch
+    );
+    fputs(",\n  \"prerelease\": ", stdout);
+    fputs_json_string_(stdout, hit->prerelease);
+    fputs(",\n  \"build_metadata\": ", stdout);
+    fputs_json_string_(stdout, hit->build_metadata);
+    fprintf(
+        stdout
+    ,   ",\n  \"alphabeta\": %d,\n  \"build\": %d"
+    ,   hit->alphabeta
+    ,   hit->build
+    );
+    fputs(",\n  \"source\": ", stdout);
+    fputs_json_string_(stdout, hit->source);
+    fputs(",\n  \"warnings\": [", stdout);
+
+    if (0 == result->num_warnings)
+    {
+        fputs("]\n}\n", stdout);
+
+        return;
+    }
+
+    fputc('\n', stdout);
+
+    for (i = 0; i < result->num_warnings; ++i)
+    {
+        libver_warning_t const* w = &result->warnings[i];
+
+        fputs("    {\n      \"kind\": ", stdout);
+        fputs_json_string_(stdout, w->kind);
+        fputs(",\n      \"scheme\": ", stdout);
+        fputs_json_string_(stdout, w->scheme);
+        fputs(",\n      \"source\": ", stdout);
+        fputs_json_string_(stdout, w->source);
+        fputs(",\n      \"message\": ", stdout);
+        fputs_json_string_(stdout, w->message);
+        fputs("\n    }", stdout);
+
+        if (i + 1 < result->num_warnings)
+        {
+            fputs(",\n", stdout);
+        }
+        else
+        {
+            fputc('\n', stdout);
+        }
+    }
+
+    fputs("  ]\n}\n", stdout);
+}
+
+static
+void
+print_warnings_(
+    clasp_arguments_t const*    args
+,   libver_result_t const*      result
+)
+{
+    size_t i;
+
+    for (i = 0; i < result->num_warnings; ++i)
+    {
+        libver_warning_t const* w = &result->warnings[i];
+
+        fprintf(
+            stderr
+        ,   "%.*s: warning: %s: %s\n"
+        ,   SIS_DOTSTAR(args->programName)
+        ,   w->kind
+        ,   w->message
+        );
+    }
 }
 
 static
@@ -357,6 +510,7 @@ run(
 {
     clasp_argument_t const* firstUnusedFlagOrOption;
     int                     flags = 0;
+    int                     json = 0;
     char                    dir[CLI_DIR_MAX];
     libver_result_t         result;
     int                     ir;
@@ -402,6 +556,8 @@ run(
 
     clasp_checkAllFlags(args, specifications, &flags);
 
+    json = clasp_flagIsSpecified(args, "--json") ? 1 : 0;
+
     if (0 != clasp_reportUnusedFlagsAndOptions(args, &firstUnusedFlagOrOption, 0))
     {
         fprintf(
@@ -439,7 +595,15 @@ run(
 
     if (LIBVER_RC_SUCCESS == rc)
     {
-        print_hit_(&result.schemes[0]);
+        if (json)
+        {
+            print_json_(&result);
+        }
+        else
+        {
+            print_hit_(&result.schemes[0]);
+            print_warnings_(args, &result);
+        }
     }
     else
     {

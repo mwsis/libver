@@ -4,7 +4,7 @@
  * Purpose: Definition of the libver core API.
  *
  * Created: 10th August 2026
- * Updated: 16th September 2026
+ * Updated: 17th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -77,7 +77,7 @@
 
 #define LIBVER_VER_MAJOR        0
 #define LIBVER_VER_MINOR        0
-#define LIBVER_VER_PATCH        2
+#define LIBVER_VER_PATCH        3
 #define LIBVER_VER_ALPHABETA    0xFF
 #define LIBVER_VER_REVISION     LIBVER_VER_PATCH
 
@@ -152,6 +152,17 @@ extern "C" {
 /** @a schemes value selecting every known scheme in precedence order. */
 #define LIBVER_SCHEMES_ALL                                  "*"
 
+/** Warning kind: multiple version sources within one ecosystem disagree.
+ * Reserved for later backends (e.g. Python); Cargo and Zig each have a
+ * single marker, so this kind is not emitted yet.
+ */
+#define LIBVER_WARNING_INCONSISTENT_SOURCES                 "inconsistent-sources"
+
+/** Warning kind: another selected ecosystem's marker is present beside
+ * the precedence winner.
+ */
+#define LIBVER_WARNING_OTHER_ECOSYSTEM                      "other-ecosystem"
+
 
 /* /////////////////////////////////////////////////////////////////////////
  * types
@@ -163,22 +174,43 @@ struct libver_scheme_result_t
     int         major;
     int         minor;
     int         patch;
+    /** Synesis prerelease encoding when it maps; 0xFF for a release
+     * (no prerelease); 0 when the prerelease string is not Synesis-style.
+     */
     int         alphabeta;
+    /** Integer build metadata when @a build_metadata is a decimal integer;
+     * otherwise 0.
+     */
     int         build;
     const char* version;
+    /** SemVer prerelease without the leading '-'; empty when absent. */
+    char const* prerelease;
+    /** SemVer build metadata without the leading '+'; empty when absent. */
+    char const* build_metadata;
     const char* source;
 };
 #ifndef __cplusplus
 typedef struct libver_scheme_result_t                       libver_scheme_result_t;
 #endif /* !__cplusplus */
 
-typedef struct libver_result_ctxt_t libver_result_ctxt_t;
+struct libver_warning_t
+{
+    char const* kind;
+    char const* scheme;
+    char const* source;
+    char const* message;
+};
+#ifndef __cplusplus
+typedef struct libver_warning_t                             libver_warning_t;
+#endif /* !__cplusplus */
 
 
 struct libver_result_t
 {
     size_t                  num_schemes;
     libver_scheme_result_t* schemes;
+    size_t                  num_warnings;
+    libver_warning_t*       warnings;
 };
 #ifndef __cplusplus
 typedef struct libver_result_t                              libver_result_t;
@@ -224,7 +256,9 @@ libver_uninit(void);
  *
  * Probes @a dir (not recursively) in documented precedence order: Cargo
  * (`Cargo.toml`) then Zig (`build.zig.zon`). The first matching scheme that
- * yields a version is the winner.
+ * yields a version is the winner. Other selected schemes whose markers are
+ * also present are recorded as LIBVER_WARNING_OTHER_ECOSYSTEM warnings;
+ * they do not change the return code.
  *
  * @param dir
  *   The directory to search for project version(s);
@@ -255,6 +289,9 @@ libver_find(
 );
 
 /** Release storage owned by @a result.
+ *
+ * Frees scheme and warning records (and their strings). All pointers in
+ * @a result are owned by the result object.
  *
  * @param result
  *   The result to release;

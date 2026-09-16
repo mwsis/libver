@@ -1,6 +1,6 @@
 # **libver** detection precedence <!-- omit in toc -->
 
-Status: v0 order in force for Phase 2 (Cargo, then Zig). Python and later ecosystems remain listed for planning only.
+Status: v0 order in force (Cargo, then Zig). Python and later ecosystems remain listed for planning only. Phase 4 warning kinds are in [c-api.md](./c-api.md).
 
 
 ## Table of Contents <!-- omit in toc -->
@@ -60,8 +60,16 @@ Document any change to this order in this file and in **CHANGES.md**.
 ## Conflict policy
 
 * Return **one winner** (language + version + source) according to precedence;
-* Surface **warnings** when other ecosystems or inconsistent sources are also present;
-* Do not silently pick an arbitrary winner when markers conflict within the same ecosystem;
+* Surface **warnings** when other **selected** ecosystems are also present
+  (`LIBVER_WARNING_OTHER_ECOSYSTEM`); the winner is unchanged;
+* Unselected schemes are ignored (a Cargo-only probe does not warn about
+  Zig);
+* Intra-ecosystem inconsistency (`LIBVER_WARNING_INCONSISTENT_SOURCES`) is
+  reserved for backends with multiple sources (Python); Cargo and Zig each
+  have a single marker, so that kind is not emitted yet;
+* Do not silently pick an arbitrary winner when markers conflict within the
+  same ecosystem;
+* Parse failure of a **present winning** marker does **not** fall through;
 
 
 <!-- ########################### end of file ########################### -->

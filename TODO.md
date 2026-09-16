@@ -18,8 +18,8 @@
 * [x] ~~~Scratch **test.scratch.zig**: parse **build.zig.zon** `.version` (ZON line extract)~~~ - ✅;
 * [x] ~~~Robust **build.zig.zon** `.version` extraction: small lexical scanner for the top-level field, comments, multiline whitespace, string decoding, and SemVer validation; a full ZON parser is unnecessary~~~ - ✅;
 * [ ] Scratch **test.scratch.zip**;
-* [ ] Core C-API: expose SemVer prerelease and build metadata (Zig `SemanticVersion` has five components — `major` / `minor` / `patch` / `pre` / `build`; today only the core three ints are filled and `pre`/`build` live only in the `version` string; `alphabeta` / `build` ints stay 0) — decide string fields vs Synesis int encoding (Phase 4 result-model hardening);
-* [ ] Core C-API warnings / conflict records (result model Phase 4);
+* [x] ~~~Core C-API: expose SemVer prerelease and build metadata (strings plus Synesis `alphabeta` / integer `build` when they map)~~~ - ✅;
+* [x] ~~~Core C-API warnings / conflict records (result model Phase 4)~~~ - ✅;
 * [x] ~~~Cargo backend (**Cargo.toml**)~~~ - ✅;
 * [x] ~~~Zig backend (**build.zig.zon**)~~~ - ✅;
 * [x] ~~~CLI stubs **libver** / **cargo-libver** (**CLASP** + **sistools-common-c**)~~~ - ✅;
@@ -43,7 +43,7 @@
 * [ ] **run_all_examples.sh** / **generate_doxygen.sh** when examples/Doxygen exist;
 * [ ] GitHub Actions (**ci.yml** + **ci-cell.yml**);
 * [x] ~~~**REQUISITES.md** (deps obtain / build / install, including **tomlc17**)~~~ - ✅;
-* [x] ~~~**INSTALL.md** / **FAQ.md** filled beyond stubs (link **REQUISITES.md**; stub CLI status)~~~ - ✅;
+* [x] ~~~**INSTALL.md** / **FAQ.md** filled beyond stubs (link **REQUISITES.md**; CLI exit codes and `--json`)~~~ - ✅;
 
 
 ## Operator / rulesbase
