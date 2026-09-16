@@ -53,12 +53,14 @@ function(libver_find_config_package
 	if(${package_name}_FOUND)
 
 		message("-- CMake package ${package_name} found (version ${${package_name}_VERSION}; ${required_version} requested)")
+		set(${package_name}_FOUND TRUE PARENT_SCOPE)
 	elseif(is_required)
 
 		message(FATAL_ERROR "CMake package ${package_name} (${required_version}) is required but was not found. Set ${package_name}_ROOT / CMAKE_PREFIX_PATH, or install the package.")
 	else()
 
 		message("-- CMake package ${package_name} not found (optional)")
+		set(${package_name}_FOUND FALSE PARENT_SCOPE)
 	endif()
 endfunction()
 

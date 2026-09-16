@@ -10,6 +10,8 @@ Status: agreed for v0 planning (subject to refinement as implementation proceeds
 - [Core principles](#core-principles)
 - [Repository layout](#repository-layout)
 - [Build system](#build-system)
+- [Library dependencies (v0)](#library-dependencies-v0)
+- [CLI dependencies (v0)](#cli-dependencies-v0)
 - [Naming](#naming)
 - [Language frontends vs bindings](#language-frontends-vs-bindings)
 
@@ -62,13 +64,32 @@ libver/
 * A Cargo workspace is added only after a second Rust crate appears;
 
 
+## Library dependencies (v0)
+
+Always (configure-time; see [REQUISITES.md](../REQUISITES.md)):
+
+* **Diagnosticism** — diagnostics helpers (e.g. version-string formatting);
+* **recls** — recursive filesystem search (scratch **test.scratch.python2**; expected again in core);
+* **STLSoft** — discrimination / compatibility headers;
+* **tomlc17** — TOML parser (scratches **test.scratch.rust** / **python3**; forthcoming Cargo backend);
+
+When `BUILD_TESTING`:
+
+* **xTests** — unit-test harness;
+
+
 ## CLI dependencies (v0)
 
+When `BUILD_CLI` or `BUILD_FRONTENDS`:
+
 * **CLASP** — command-line parsing (now);
+* **collect-c** — linked into CLI stubs for upcoming use;
+* **cstring** — linked into CLI stubs for upcoming use;
 * **sistools-common-c** — shared help/version helpers (`stcc_show_*`);
-* **Diagnosticism** — version formatting (always; not test-only);
-* **cstring**, **collect-c** — linked into CLI stubs for upcoming use;
-* **Pantheios** — CMake locate wiring only for now (`LIBVER_WITH_PANTHEIOS` / quiet find); not linked yet;
+
+Optional locate-only:
+
+* **Pantheios** — CMake locate wiring only (`LIBVER_WITH_PANTHEIOS` / quiet find); not linked yet;
 * **libCLImate** — later (not wired yet);
 
 

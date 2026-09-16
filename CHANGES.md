@@ -1,7 +1,7 @@
 # **libver** Changes <!-- omit in toc -->
 
 
-## 0.0.1 - 10th August 2026
+## 0.0.1 - 16th September 2026
 
 * Added unit smoke **test.unit.libver.find** (stub `libver_find` / init / null-result) registered with **CTest**;
 * Scratch version printer is **test.scratch.versions** (`core/test/scratch/versions/main.c`), not a `libver`-named binary;
@@ -16,6 +16,8 @@
 * Scratch **test.scratch.rust**: read **Cargo.toml** `[package].version` with installed **tomlc17**;
 * Scratch **test.scratch.zig**: read **build.zig.zon** `.version` (minimal ZON line extract; not TOML);
 * Added **REQUISITES.md** (obtain / build / install for all third-party deps, including **tomlc17**);
+* Closed out Phase 1 scaffold documentation (**TODO.md**, **INSTALL.md**, **FAQ.md**, **docs/roadmap.md**, **docs/architecture.md**);
+* Optional **Pantheios** locate now exports `Pantheios_FOUND` from **cmake/LibverFindPackage.cmake** so `LIBVER_HAS_PANTHEIOS` is accurate (still not linked);
 
 
 ## 0.0.0 - 10th August 2026

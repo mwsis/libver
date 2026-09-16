@@ -3,6 +3,13 @@
 **libver** is a C-core tool-suite: a static library with a C-API, plus thin
 CLI frontends. The primary build path is **CMake**.
 
+Phase 1 is a **stub scaffold**: `libver_find` does not detect project
+versions yet, and **libver** / **cargo-libver** only honour `--help` /
+`--version`. Real extraction lives in language scratches under
+**core/test/scratch/**. Obtain third-party dependencies from
+[REQUISITES.md](./REQUISITES.md) — this file does not repeat those
+install novels.
+
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -44,16 +51,18 @@ Full obtain / build / install steps for every third-party dependency (including 
 
 Summary:
 
-* Always: **STLSoft**, **Diagnosticism**, **recls**, **tomlc17**;
-* When building CLIs / frontends (`BUILD_CLI` / `BUILD_FRONTENDS`): **CLASP**, **cstring**, **collect-c**, **sistools-common-c**;
+* Always: **Diagnosticism**, **recls**, **STLSoft**, **tomlc17**;
+* When building CLIs / frontends (`BUILD_CLI` / `BUILD_FRONTENDS`): **CLASP**, **collect-c**, **cstring**, **sistools-common-c**;
 * When testing (`BUILD_TESTING`): **xTests**;
 
 Hint local build trees / install prefixes via **CMAKE_PREFIX_PATH** or:
 
-* `SISTOOLS_COMMON_C` — e.g. `$HOME/dev/sistools/sistools-common-c/_build`
 * `COLLECT_C` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/collect/collect-c/_build`
-* `RECLS` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/recls/recls/_build`
+* `DIAGNOSTICISM` — e.g. a local **Diagnosticism** `_build` or install prefix
 * `PANTHEIOS` — for later logging; enable required locate with `-DLIBVER_WITH_PANTHEIOS=ON`
+* `RECLS` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/recls/recls/_build`
+* `SISTOOLS_COMMON_C` — e.g. `$HOME/dev/sistools/sistools-common-c/_build`
+* `STLSOFT` — unpacked tree (include path `${STLSOFT}/include`); see **REQUISITES.md**
 * `TOMLC17_INCLUDE_DIR` / `TOMLC17_LIBRARY` — if **tomlc17** is not on the default search path
 
 After build, stub CLIs:

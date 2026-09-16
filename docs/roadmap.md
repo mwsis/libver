@@ -28,6 +28,8 @@ Status: planning checklist derived from the initial design conversations.
 * [x] **1.1** Wire unit/component test targets (smoke first) — **test.unit.libver.find** via **CTest**;
 * [x] **1.2** Wire **cli/libver** and **frontends/cargo-libver** stubs (**CLASP** + **sistools-common-c**; **cstring** / **collect-c** linked; **Diagnosticism** always; **Pantheios** locate-only; **libCLImate** later);
 
+Language-extraction scratches (**test.scratch.python2**, **python3**, **rust**, **versions**, **zig**) and **REQUISITES.md** landed as scaffold prep. They are not Phase 2 backends: core `libver_find` remains a stub.
+
 
 ## Phase 2 — First backends
 
