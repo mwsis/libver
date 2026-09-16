@@ -681,8 +681,11 @@ zon_extract_top_level_version_(
 
 int
 libver_backend_zig_probe(
-    const char*             dir
-,   libver_internal_hit_t*  hit
+    char const*                 dir
+,   libver_internal_hit_t*      hit
+,   libver_internal_warning_t*  warnings
+,   size_t                      warnings_cap
+,   size_t*                     num_warnings
 )
 {
     char    path[LIBVER_INTERNAL_PATH_MAX];
@@ -693,6 +696,14 @@ libver_backend_zig_probe(
 
     assert(NULL != dir);
     assert(NULL != hit);
+
+    (void)warnings;
+    (void)warnings_cap;
+
+    if (NULL != num_warnings)
+    {
+        *num_warnings = 0;
+    }
 
     rc = libver_internal_regular_file_in_dir(
             dir

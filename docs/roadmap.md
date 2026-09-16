@@ -10,8 +10,10 @@ Status: planning checklist derived from the initial design conversations.
 - [Phase 2 — First backends](#phase-2--first-backends)
 - [Phase 3 — Public CLI surfaces](#phase-3--public-cli-surfaces)
 - [Phase 4 — Harden the result model](#phase-4--harden-the-result-model)
-- [Phase 5 — Further language backends](#phase-5--further-language-backends)
-- [Phase 6 — Packaging and bindings](#phase-6--packaging-and-bindings)
+- [Phase 5 — Python](#phase-5--python)
+- [Phase 6 — Ruby](#phase-6--ruby)
+- [Phase 7 — C/C++](#phase-7--cc)
+- [Phase 8 — Packaging and bindings](#phase-8--packaging-and-bindings)
 
 
 ## Phase 0 — Lock names and contracts
@@ -52,14 +54,25 @@ Language-extraction scratches (**test.scratch.python2**, **python3**, **rust**, 
 * [x] Document CLI exit codes and optional machine-readable output (`--json`);
 
 
-## Phase 5 — Further language backends
+## Phase 5 — Python
 
-* [ ] Python (`pyproject.toml`, then setup / `__init__` inconsistency);
+* [x] Python scheme (`LIBVER_SCHEME_PYTHON`): **pyproject.toml** `[project].version`, then legacy **setup.py** / **`__init__.py`**;
+* [x] Intra-ecosystem `inconsistent-sources` when Python version strings disagree;
+* [x] Detection + precedence tests (Python-only, legacy agree/drift, Cargo-over-Python, nested `__init__.py` out of scope);
+
+
+## Phase 6 — Ruby
+
 * [ ] Ruby heuristics;
+
+
+## Phase 7 — C/C++
+
 * [ ] C/C++ heuristics;
+* [ ] Consider embedding **TCC** (as a dynamic library) for C version checking — necessity not yet determined;
 
 
-## Phase 6 — Packaging and bindings
+## Phase 8 — Packaging and bindings
 
 * [ ] Rust crate wrapping core (crates.io / richer Cargo UX) when needed;
 * [ ] Go module and/or .NET tool as thin installers/FFI;

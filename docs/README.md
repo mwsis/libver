@@ -13,7 +13,7 @@ Design and planning notes for the **libver** tool-suite. These documents are the
 | Document | Purpose |
 | --- | --- |
 | [architecture.md](./architecture.md) | Product shape, monorepo layout, build ownership |
-| [c-api.md](./c-api.md) | Public C-API (Phase 4: status codes, warnings, SemVer fields) |
+| [c-api.md](./c-api.md) | Public C-API (Phase 5: status codes, warnings, SemVer fields, Python scheme) |
 | [detection-precedence.md](./detection-precedence.md) | Language detection order and conflicts |
 | [roadmap.md](./roadmap.md) | Phased implementation plan |
 

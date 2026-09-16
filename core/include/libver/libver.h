@@ -77,7 +77,7 @@
 
 #define LIBVER_VER_MAJOR        0
 #define LIBVER_VER_MINOR        0
-#define LIBVER_VER_PATCH        3
+#define LIBVER_VER_PATCH        4
 #define LIBVER_VER_ALPHABETA    0xFF
 #define LIBVER_VER_REVISION     LIBVER_VER_PATCH
 
@@ -146,6 +146,9 @@ extern "C" {
 /** Scheme name for Cargo / Rust (`Cargo.toml`). */
 #define LIBVER_SCHEME_CARGO                                 "cargo"
 
+/** Scheme name for Python (`pyproject.toml`, then legacy markers). */
+#define LIBVER_SCHEME_PYTHON                                "python"
+
 /** Scheme name for Zig (`build.zig.zon`). */
 #define LIBVER_SCHEME_ZIG                                   "zig"
 
@@ -153,8 +156,9 @@ extern "C" {
 #define LIBVER_SCHEMES_ALL                                  "*"
 
 /** Warning kind: multiple version sources within one ecosystem disagree.
- * Reserved for later backends (e.g. Python); Cargo and Zig each have a
- * single marker, so this kind is not emitted yet.
+ * Emitted for Python when pyproject.toml / setup.py / __init__.py version
+ * strings differ; Cargo and Zig each have a single marker, so they do not
+ * emit this kind.
  */
 #define LIBVER_WARNING_INCONSISTENT_SOURCES                 "inconsistent-sources"
 
@@ -255,10 +259,13 @@ libver_uninit(void);
 /** Finds the definitive project version(s) for @a dir.
  *
  * Probes @a dir (not recursively) in documented precedence order: Cargo
- * (`Cargo.toml`) then Zig (`build.zig.zon`). The first matching scheme that
- * yields a version is the winner. Other selected schemes whose markers are
- * also present are recorded as LIBVER_WARNING_OTHER_ECOSYSTEM warnings;
- * they do not change the return code.
+ * (`Cargo.toml`), Zig (`build.zig.zon`), then Python (`pyproject.toml`,
+ * then same-directory `setup.py` / `__init__.py` and one-level package
+ * `__init__.py`). The first matching scheme that yields a version is the
+ * winner. Other selected schemes whose markers are also present are
+ * recorded as LIBVER_WARNING_OTHER_ECOSYSTEM warnings; they do not change
+ * the return code. Disagreeing Python sources add
+ * LIBVER_WARNING_INCONSISTENT_SOURCES (winner unchanged).
  *
  * @param dir
  *   The directory to search for project version(s);
@@ -266,7 +273,7 @@ libver_uninit(void);
  *   Reserved; pass 0;
  * @param schemes
  *   LIBVER_SCHEMES_ALL ("*") for every known scheme, or a single scheme
- *   name (LIBVER_SCHEME_CARGO, LIBVER_SCHEME_ZIG);
+ *   name (LIBVER_SCHEME_CARGO, LIBVER_SCHEME_PYTHON, LIBVER_SCHEME_ZIG);
  * @param result
  *   The result of the search. On success the caller must eventually call
  *   libver_result_free(). On failure @a result is empty;

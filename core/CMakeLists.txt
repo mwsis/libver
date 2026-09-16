@@ -7,6 +7,7 @@
 
 add_library(libver STATIC
 	backends/cargo.c
+	backends/python.c
 	backends/zig.c
 	src/libver.c
 	src/util.c

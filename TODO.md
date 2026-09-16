@@ -25,8 +25,9 @@
 * [x] ~~~CLI stubs **libver** / **cargo-libver** (**CLASP** + **sistools-common-c**)~~~ - ✅;
 * [x] ~~~Shared **libver** CLI (real discovery behaviour)~~~ - ✅;
 * [x] ~~~**cargo-libver** frontend (real discovery behaviour)~~~ - ✅;
+* [x] ~~~Python backend (**pyproject.toml**, then **setup.py** / **`__init__.py`**; `inconsistent-sources`)~~~ - ✅;
 * [ ] Wire **Pantheios** logging; adopt **libCLImate** later;
-* [ ] Python / Ruby / C++ backends;
+* [ ] Ruby / C++ backends;
 * [ ] Consider embedding **TCC** (as a dynamic library) for C version checking — necessity not yet determined;
 
 

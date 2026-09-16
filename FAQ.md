@@ -36,11 +36,13 @@ and is not linked.
 
 ## Q3: "Do the CLIs discover a project's version yet?"
 
-Yes, for **Cargo.toml** and **build.zig.zon** in the given directory (not
-recursively). **libver** uses every known scheme (Cargo, then Zig);
-**cargo-libver** looks at **Cargo.toml** only. Omitted directory is cwd.
-**libver** warns on stderr when another selected ecosystem is also present;
-`--json` writes a machine-readable object. See
+Yes, for **Cargo.toml**, **build.zig.zon**, and Python (**pyproject.toml**,
+then **setup.py** / **`__init__.py`** in the given directory and one-level
+package dirs — not a recursive tree walk). **libver** uses every known
+scheme (Cargo, then Zig, then Python); **cargo-libver** looks at
+**Cargo.toml** only. Omitted directory is cwd. **libver** warns on stderr
+when another selected ecosystem is also present, or when Python sources
+disagree; `--json` writes a machine-readable object. See
 [INSTALL.md](./INSTALL.md#running-the-clis) for smoke commands.
 
 

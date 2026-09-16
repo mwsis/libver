@@ -1,6 +1,14 @@
 # **libver** Changes <!-- omit in toc -->
 
 
+## 0.0.4 - 17th September 2026
+
+* `libver_find` probes **pyproject.toml** then legacy Python markers after Cargo and Zig;
+* Scheme `LIBVER_SCHEME_PYTHON` (`"python"`): `[project].version` via **tomlc17**; **setup.py** / **`__init__.py`** literals in the given directory and one-level package dirs (not a recursive tree walk);
+* Emits `inconsistent-sources` when Python version strings disagree; still picks a documented winner;
+* Roadmap renumbered: Phase 5 Python, Phase 6 Ruby, Phase 7 C/C++, Phase 8 packaging and bindings;
+
+
 ## 0.0.3 - 17th September 2026
 
 * `libver_find` records structured `other-ecosystem` warnings when another selected marker is present beside the precedence winner;

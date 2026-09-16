@@ -4,7 +4,7 @@
  * Purpose: Internal declarations for the libver core and backends.
  *
  * Created: 16th September 2026
- * Updated: 16th September 2026
+ * Updated: 17th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -63,7 +63,7 @@
 #define LIBVER_INTERNAL_PATH_MAX                            (4096)
 #define LIBVER_INTERNAL_VERSION_MAX                         (128)
 #define LIBVER_INTERNAL_MESSAGE_MAX                         (LIBVER_INTERNAL_PATH_MAX + 128)
-#define LIBVER_INTERNAL_MAX_SCHEMES                         (8)
+#define LIBVER_INTERNAL_MAX_SCHEMES                         (16)
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -185,6 +185,18 @@ libver_internal_hit_set_version(
 ,   const char*             version
 );
 
+/** Extract the first `version=` / `__version__` quoted literal from
+ * @a text.
+ *
+ * @return 0 on success; non-zero if none found.
+ */
+int
+libver_internal_python_extract_literal(
+    char const* text
+,   char*       out
+,   size_t      out_cap
+);
+
 /** Populate @a result from a single @a hit and optional warnings.
  *
  * @return LIBVER_RC_SUCCESS or LIBVER_RC_NO_MEMORY.
@@ -204,14 +216,36 @@ libver_internal_result_set(
 
 int
 libver_backend_cargo_probe(
-    const char*             dir
-,   libver_internal_hit_t*  hit
+    char const*                 dir
+,   libver_internal_hit_t*      hit
+,   libver_internal_warning_t*  warnings
+,   size_t                      warnings_cap
+,   size_t*                     num_warnings
+);
+
+int
+libver_backend_python_present(
+    char const* dir
+,   char*       path_out
+,   size_t      path_cap
+);
+
+int
+libver_backend_python_probe(
+    char const*                 dir
+,   libver_internal_hit_t*      hit
+,   libver_internal_warning_t*  warnings
+,   size_t                      warnings_cap
+,   size_t*                     num_warnings
 );
 
 int
 libver_backend_zig_probe(
-    const char*             dir
-,   libver_internal_hit_t*  hit
+    char const*                 dir
+,   libver_internal_hit_t*      hit
+,   libver_internal_warning_t*  warnings
+,   size_t                      warnings_cap
+,   size_t*                     num_warnings
 );
 
 

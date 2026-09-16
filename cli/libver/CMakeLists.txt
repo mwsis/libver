@@ -28,6 +28,22 @@ if(BUILD_TESTING)
 	)
 
 	add_test(
+		NAME cli.libver.python-pyproject
+		COMMAND cli.libver "${CMAKE_SOURCE_DIR}/core/test/fixtures/python-pyproject"
+	)
+	set_tests_properties(cli.libver.python-pyproject PROPERTIES
+		PASS_REGULAR_EXPRESSION "scheme:  python[\r\n]+version: 1\\.4\\.1"
+	)
+
+	add_test(
+		NAME cli.libver.python-legacy-drift-warning
+		COMMAND cli.libver "${CMAKE_SOURCE_DIR}/core/test/fixtures/python-legacy-drift"
+	)
+	set_tests_properties(cli.libver.python-legacy-drift-warning PROPERTIES
+		PASS_REGULAR_EXPRESSION "warning: inconsistent-sources:"
+	)
+
+	add_test(
 		NAME cli.libver.empty
 		COMMAND cli.libver "${CMAKE_SOURCE_DIR}/core/test/fixtures/empty"
 	)

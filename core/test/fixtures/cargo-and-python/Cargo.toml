@@ -1,0 +1,4 @@
+[package]
+name = "libver-fixture-both-cargo"
+version = "3.1.4"
+edition = "2021"

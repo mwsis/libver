@@ -3,12 +3,13 @@
 **libver** is a C-core tool-suite: a static library with a C-API, plus thin
 CLI frontends. The primary build path is **CMake**.
 
-The C core (`libver_find`) discovers **Cargo.toml** and **build.zig.zon**
-versions in a given directory (not recursively). The shared **libver** CLI
-probes every known scheme in that order; **cargo-libver** probes
-**Cargo.toml** only. Obtain third-party dependencies from
-[REQUISITES.md](./REQUISITES.md) — this file does not repeat those install
-novels.
+The C core (`libver_find`) discovers **Cargo.toml**, **build.zig.zon**, and
+Python (**pyproject.toml**, then **setup.py** / **`__init__.py`**) versions
+in a given directory (not recursively; Python also looks at one-level
+package **`__init__.py`**). The shared **libver** CLI probes every known
+scheme in that order; **cargo-libver** probes **Cargo.toml** only. Obtain
+third-party dependencies from [REQUISITES.md](./REQUISITES.md) — this file
+does not repeat those install novels.
 
 
 ## Table of Contents <!-- omit in toc -->
@@ -91,6 +92,11 @@ scheme:  zig
 version: 0.4.5
 source:  core/test/fixtures/zig-only/build.zig.zon
 
+$ ./_build/cli/libver/libver core/test/fixtures/python-pyproject
+scheme:  python
+version: 1.4.1
+source:  core/test/fixtures/python-pyproject/pyproject.toml
+
 $ ./_build/cli/libver/libver core/test/fixtures/empty
 libver: no recognised project version: '.../empty'
 ```
@@ -98,9 +104,10 @@ libver: no recognised project version: '.../empty'
 The last command exits **1** (`LIBVER_RC_NO_MATCH`). Warnings do not change
 a successful exit (**0**).
 
-On a mixed Cargo+Zig tree the winner is still Cargo; **libver** also prints
-a warning on stderr (`other-ecosystem`). **cargo-libver** does not, because
-it selects Cargo only.
+On a mixed Cargo+Zig or Cargo+Python tree the winner is still Cargo;
+**libver** also prints a warning on stderr (`other-ecosystem`). Python
+legacy drift prints `inconsistent-sources`. **cargo-libver** does not,
+because it selects Cargo only.
 
 `--json` writes the winner and a `warnings` array to stdout (pretty-printed
 JSON). Failures stay as human stderr.

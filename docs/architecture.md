@@ -71,7 +71,7 @@ Always (configure-time; see [REQUISITES.md](../REQUISITES.md)):
 * **Diagnosticism** — diagnostics helpers (e.g. version-string formatting);
 * **recls** — recursive filesystem search (scratch **test.scratch.python2**; expected again in core);
 * **STLSoft** — discrimination / compatibility headers;
-* **tomlc17** — TOML parser (Cargo backend; scratches **test.scratch.rust** / **python3**);
+* **tomlc17** — TOML parser (Cargo and Python backends; scratches **test.scratch.rust** / **python3**);
 
 When `BUILD_TESTING`:
 

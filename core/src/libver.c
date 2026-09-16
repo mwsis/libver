@@ -4,7 +4,7 @@
  * Purpose: Implementation of the libver core API.
  *
  * Created: 10th August 2026
- * Updated: 16th September 2026
+ * Updated: 17th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -64,7 +64,14 @@ typedef struct scheme_desc_t
 {
     char const* name;
     char const* marker;
-    int         (*probe)(char const*, libver_internal_hit_t*);
+    int         (*probe)(
+                    char const*
+                ,   libver_internal_hit_t*
+                ,   libver_internal_warning_t*
+                ,   size_t
+                ,   size_t*
+                );
+    int         (*present)(char const*, char*, size_t);
 } scheme_desc_t;
 
 
@@ -74,8 +81,9 @@ typedef struct scheme_desc_t
 
 static scheme_desc_t const k_schemes[] =
 {
-    { LIBVER_SCHEME_CARGO, "Cargo.toml", libver_backend_cargo_probe },
-    { LIBVER_SCHEME_ZIG, "build.zig.zon", libver_backend_zig_probe },
+    { LIBVER_SCHEME_CARGO, "Cargo.toml", libver_backend_cargo_probe, NULL },
+    { LIBVER_SCHEME_ZIG, "build.zig.zon", libver_backend_zig_probe, NULL },
+    { LIBVER_SCHEME_PYTHON, "pyproject.toml", libver_backend_python_probe, libver_backend_python_present },
 };
 
 
@@ -116,6 +124,24 @@ marker_present_(
                     );
 
     return LIBVER_RC_SUCCESS == rc || LIBVER_RC_PARSE == rc;
+}
+
+static int
+scheme_present_(
+    scheme_desc_t const*    spec
+,   char const*             dir
+,   char*                   path
+,   size_t                  path_cap
+)
+{
+    assert(NULL != spec);
+
+    if (NULL != spec->present)
+    {
+        return spec->present(dir, path, path_cap);
+    }
+
+    return marker_present_(dir, spec->marker, path, path_cap);
 }
 
 static void
@@ -257,7 +283,13 @@ libver_find(
 
         if (!have_winner)
         {
-            rc = spec->probe(dir, &winner);
+            rc = spec->probe(
+                    dir
+                ,   &winner
+                ,   warns
+                ,   LIBVER_INTERNAL_MAX_SCHEMES
+                ,   &nwarns
+                );
 
             if (LIBVER_RC_NO_MATCH == rc)
             {
@@ -275,7 +307,7 @@ libver_find(
         {
             char path[LIBVER_INTERNAL_PATH_MAX];
 
-            if (marker_present_(dir, spec->marker, path, sizeof(path)))
+            if (scheme_present_(spec, dir, path, sizeof(path)))
             {
                 fill_other_ecosystem_warning_(
                     &warns[nwarns]

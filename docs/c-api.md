@@ -1,6 +1,6 @@
 # **libver** C-API <!-- omit in toc -->
 
-Status: Phase 4 contract — matches **libver/libver.h**. Integer `LIBVER_RC_*`
+Status: Phase 5 contract — matches **libver/libver.h**. Integer `LIBVER_RC_*`
 codes and structured warning records are the v0 result model.
 
 
@@ -64,6 +64,7 @@ callers can switch on `int` without a C enum ABI.
 | Macro | Value | Marker |
 | --- | --- | --- |
 | `LIBVER_SCHEME_CARGO` | `"cargo"` | `Cargo.toml` (`[package].version`) |
+| `LIBVER_SCHEME_PYTHON` | `"python"` | `pyproject.toml` (`[project].version`), then `setup.py` / `__init__.py` |
 | `LIBVER_SCHEME_ZIG` | `"zig"` | `build.zig.zon` (top-level `.version`) |
 | `LIBVER_SCHEMES_ALL` | `"*"` | Every known scheme, precedence order |
 
@@ -127,12 +128,13 @@ strings-only. Kinds:
 | Macro | Value | When |
 | --- | --- | --- |
 | `LIBVER_WARNING_OTHER_ECOSYSTEM` | `"other-ecosystem"` | Another **selected** scheme's marker is present beside the winner |
-| `LIBVER_WARNING_INCONSISTENT_SOURCES` | `"inconsistent-sources"` | Reserved: intra-ecosystem disagreement (e.g. Python). Not emitted for Cargo/Zig (one marker each) |
+| `LIBVER_WARNING_INCONSISTENT_SOURCES` | `"inconsistent-sources"` | Python sources disagree on the version string (winner unchanged) |
 
 `libver_find(..., LIBVER_SCHEMES_ALL, ...)` on a tree with both
 `Cargo.toml` and `build.zig.zon` returns Cargo as the winner and one
-`other-ecosystem` warning for Zig. Filtering to a single scheme does **not**
-warn about unselected ecosystems (**cargo-libver** stays silent about Zig).
+`other-ecosystem` warning for Zig. The same applies when Cargo wins beside
+a Python marker. Filtering to a single scheme does **not** warn about
+unselected ecosystems (**cargo-libver** stays silent about Zig and Python).
 
 Warnings never change `LIBVER_RC_SUCCESS`.
 
@@ -155,8 +157,8 @@ Warnings never change `LIBVER_RC_SUCCESS`.
 * parse failure of a present marker (`LIBVER_RC_PARSE`) — does **not** fall
   through to a lower-precedence ecosystem;
 * structured warnings when other **selected** ecosystems are also present;
-* intra-ecosystem inconsistency is typed (`LIBVER_WARNING_INCONSISTENT_SOURCES`)
-  but not emitted until a backend has multiple sources (Phase 5 Python);
+* intra-ecosystem inconsistency (`LIBVER_WARNING_INCONSISTENT_SOURCES`) when
+  Python sources disagree; Cargo and Zig each have one marker;
 
 
 ## CLI mapping

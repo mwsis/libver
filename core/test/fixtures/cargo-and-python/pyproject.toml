@@ -1,0 +1,3 @@
+[project]
+name = "libver-fixture-both-python"
+version = "8.8.8"
