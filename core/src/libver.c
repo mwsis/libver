@@ -4,7 +4,7 @@
  * Purpose: Implementation of the libver core API.
  *
  * Created: 10th August 2026
- * Updated: 10th August 2026
+ * Updated: 16th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -68,7 +68,9 @@
  */
 
 int
-libver_init(void)
+libver_init(
+    void*
+)
 {
     /* Stub: no global state yet. */
     return 0;

@@ -4,7 +4,7 @@
  * Purpose: Definition of the libver core API.
  *
  * Created: 10th August 2026
- * Updated: 10th August 2026
+ * Updated: 16th September 2026
  *
  * Home:    http://synesis.com.au/software/
  *
@@ -77,7 +77,7 @@
 
 #define LIBVER_VER_MAJOR        0
 #define LIBVER_VER_MINOR        0
-#define LIBVER_VER_PATCH        1
+#define LIBVER_VER_PATCH        2
 #define LIBVER_VER_ALPHABETA    0xFF
 #define LIBVER_VER_REVISION     LIBVER_VER_PATCH
 
@@ -156,7 +156,9 @@ typedef struct libver_result_t                              libver_result_t;
  *   - non-zero on failure, being an error code;
  */
 int
-libver_init(void);
+libver_init(
+    void*
+);
 
 /** Uninitialises the API
  *
@@ -177,22 +179,22 @@ libver_uninit(void);
 /** Finds the definitive project version(s) for @a dir.
  *
  * @param dir
- *   The directory to search for project version(s).
+ *   The directory to search for project version(s);
  * @param flags
- *   The flags to use for the search.
+ *   The flags to use for the search;
  * @param schemes
- *   The schemes to use for the search.
+ *   The schemes to use for the search;
  * @param result
- *   The result of the search.
+ *   The result of the search;
  *
  * @return
  *   - 0 on success;
  *   - non-zero on failure, being an error code;
  *
- * @pre Behaviour is undefined if @a dir is NULL or empty.
- * @pre Behaviour is undefined if @a flags is not a valid flag.
- * @pre Behaviour is undefined if @a schemes is NULL or empty.
- * @pre Behaviour is undefined if @a result is NULL.
+ * @pre Behaviour is undefined if @a dir is NULL or empty;
+ * @pre Behaviour is undefined if @a flags is not a valid flag;
+ * @pre Behaviour is undefined if @a schemes is NULL or empty;
+ * @pre Behaviour is undefined if @a result is NULL;
  */
 int
 libver_find(
@@ -205,7 +207,7 @@ libver_find(
 /** Release storage owned by @a result.
  *
  * @param result
- *   The result to release.
+ *   The result to release;
  *
  * @pre Behaviour is undefined if @a result is NULL.
  */
