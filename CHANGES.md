@@ -7,9 +7,11 @@
 * Scratch version printer is **test.scratch.versions** (`core/test/scratch/versions/main.c`), not a `libver`-named binary;
 * When **BUILD_TESTING** is ON, require **STLSoft** and **xTests**;
 * **Diagnosticism** is required always (CLI + scratch), not only for tests;
+* **recls** is a first-class dependency (always; scratch **test.scratch.python2**, expected again in core);
 * Added Synesis runners **run_all_unit_tests.sh** / **.cmd** and **run_all_scratch_tests.sh** (from **cstring**);
 * CLI stubs **cli/libver** and **frontends/cargo-libver** via shared **cli/common/entry.c** (**CLASP**, **sistools-common-c**, **cstring**, **collect-c**);
 * Pantheios: optional CMake locate (`LIBVER_WITH_PANTHEIOS`); not linked yet; **libCLImate** deferred;
+* Scratch **test.scratch.python2**: recurse with **recls** for **setup.py** / **__init__.py**, extract `version=` / `__version__`, report agreement or drift;
 * Scratch **test.scratch.python3**: read **pyproject.toml** `[project].version` with installed **tomlc17**;
 * Scratch **test.scratch.rust**: read **Cargo.toml** `[package].version` with installed **tomlc17**;
 * Scratch **test.scratch.zig**: read **build.zig.zon** `.version` (minimal ZON line extract; not TOML);

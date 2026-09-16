@@ -12,6 +12,7 @@
 		- [STLSoft](#stlsoft)
 		- [collect-c](#collect-c)
 		- [cstring](#cstring)
+		- [recls](#recls)
 		- [sistools-common-c](#sistools-common-c)
 	- [Installation by other means](#installation-by-other-means)
 		- [tomlc17](#tomlc17)
@@ -28,7 +29,7 @@
 
 After installing (or pointing at a local `_build` tree), ensure **CMAKE_PREFIX_PATH** and/or the hint variables named in [INSTALL.md](./INSTALL.md) can see CMake packages. For **tomlc17**, use the default search path or `TOMLC17_INCLUDE_DIR` / `TOMLC17_LIBRARY`.
 
-Minimum versions requested by this project's **CMakeLists.txt** (as of writing): **CLASP** 0.15; **Diagnosticism** 0.3; **STLSoft** 1.11; **collect-c** 0.1; **cstring** 4; **sistools-common-c** 0.1; **xTests** 0.26; **Pantheios** 1.0 (when located).
+Minimum versions requested by this project's **CMakeLists.txt** (as of writing): **CLASP** 0.15; **Diagnosticism** 0.3; **STLSoft** 1.11; **collect-c** 0.1; **cstring** 4; **recls** 1.10; **sistools-common-c** 0.1; **xTests** 0.26; **Pantheios** 1.0 (when located).
 
 
 ## Required to build tools
@@ -37,6 +38,7 @@ Always:
 
 * [**Diagnosticism**](https://github.com/synesissoftware/Diagnosticism) — diagnostics helpers (e.g. version-string formatting);
 * [**STLSoft**](https://github.com/synesissoftware/STLSoft-1.11) — discrimination / compatibility / utility headers (also pulled in by several Synesis dependents);
+* [**recls**](https://github.com/synesissoftware/recls) — recursive filesystem search (scratch **test.scratch.python2**; expected again in core discovery);
 * [**tomlc17**](https://github.com/cktan/tomlc17) — TOML parser for **Cargo.toml** probing (scratch **test.scratch.rust**, and forthcoming Cargo backend);
 
 When building the shared CLI and/or ecosystem frontends (`BUILD_CLI` / `BUILD_FRONTENDS`):
@@ -50,7 +52,7 @@ Optional (CMake locate only today; not linked until logging / **libCLImate** lan
 
 * [**Pantheios**](https://github.com/synesissoftware/Pantheios) — logging; enable a required locate with `-DLIBVER_WITH_PANTHEIOS=ON`;
 
-> **NOTE**: you may omit the CLI stack if both `BUILD_CLI` and `BUILD_FRONTENDS` are OFF. **tomlc17** is currently required at configure time regardless.
+> **NOTE**: you may omit the CLI stack if both `BUILD_CLI` and `BUILD_FRONTENDS` are OFF. **recls** and **tomlc17** are currently required at configure time regardless.
 
 
 ### Installation by CMake
@@ -158,6 +160,24 @@ $ cd ~/open-source/cstring
 $ ./prepare_cmake.sh -m
 $ sudo cmake --install ./_build --config Release
 ```
+
+
+#### recls
+
+**recls** (_recursive ls_) provides portable recursive filesystem search. It is a first-class **libver** dependency: used today by scratch **test.scratch.python2**, and expected again for core tree discovery.
+
+**recls** is obtained from **https://github.com/synesissoftware/recls**, and it provides the means to install via **CMake**, as in the following:
+
+```bash
+$ mkdir -p ~/open-source
+$ cd ~/open-source
+$ git clone https://github.com/synesissoftware/recls
+$ cd ~/open-source/recls
+$ ./prepare_cmake.sh -m
+$ sudo cmake --install ./_build --config Release
+```
+
+Hint a local build tree with `RECLS=…` or `CMAKE_PREFIX_PATH` (for example `$HOME/dev/synesissoftware/forks/freelibs/recls/recls/_build`).
 
 
 #### sistools-common-c

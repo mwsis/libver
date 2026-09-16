@@ -113,13 +113,14 @@ endif()
 # always:
 # - Diagnosticism;
 # - STLSoft (CLASP / sistools-common-c / xTests);
+# - recls;
+# - tomlc17;
 #
 # when BUILD_CLI or BUILD_FRONTENDS:
 # - CLASP;
 # - cstring;
 # - collect-c;
 # - sistools-common-c;
-# - tomlc17;
 #
 # optional (CMake wiring only for now):
 # - Pantheios;
@@ -131,10 +132,11 @@ endif()
 # ######################################
 # prefix hints (install prefixes or build trees)
 
-libver_prepend_prefix_path_if_set(DIAGNOSTICISM)
-libver_prepend_prefix_path_if_set(SISTOOLS_COMMON_C)
 libver_prepend_prefix_path_if_set(COLLECT_C)
+libver_prepend_prefix_path_if_set(DIAGNOSTICISM)
 libver_prepend_prefix_path_if_set(PANTHEIOS)
+libver_prepend_prefix_path_if_set(RECLS)
+libver_prepend_prefix_path_if_set(SISTOOLS_COMMON_C)
 
 
 # ######################################
@@ -252,6 +254,16 @@ else()
 endif()
 
 message(STATUS "libver Pantheios: LIBVER_HAS_PANTHEIOS=${LIBVER_HAS_PANTHEIOS} (not linked yet; libCLImate later)")
+
+
+# ######################################
+# recls
+
+set(recls_REQUIRED_VERSION_ 1.10)
+
+find_package(recls ${recls_REQUIRED_VERSION_} REQUIRED)
+
+message("-- CMake package recls found (version ${recls_VERSION}; ${recls_REQUIRED_VERSION_} requested)")
 
 
 # ######################################

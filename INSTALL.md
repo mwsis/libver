@@ -44,7 +44,7 @@ Full obtain / build / install steps for every third-party dependency (including 
 
 Summary:
 
-* Always: **STLSoft**, **Diagnosticism**, **tomlc17**;
+* Always: **STLSoft**, **Diagnosticism**, **recls**, **tomlc17**;
 * When building CLIs / frontends (`BUILD_CLI` / `BUILD_FRONTENDS`): **CLASP**, **cstring**, **collect-c**, **sistools-common-c**;
 * When testing (`BUILD_TESTING`): **xTests**;
 
@@ -52,6 +52,7 @@ Hint local build trees / install prefixes via **CMAKE_PREFIX_PATH** or:
 
 * `SISTOOLS_COMMON_C` — e.g. `$HOME/dev/sistools/sistools-common-c/_build`
 * `COLLECT_C` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/collect/collect-c/_build`
+* `RECLS` — e.g. `$HOME/dev/synesissoftware/forks/freelibs/recls/recls/_build`
 * `PANTHEIOS` — for later logging; enable required locate with `-DLIBVER_WITH_PANTHEIOS=ON`
 * `TOMLC17_INCLUDE_DIR` / `TOMLC17_LIBRARY` — if **tomlc17** is not on the default search path
 
